@@ -1,5 +1,5 @@
 from __future__ import print_function
-#from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 import os
 import argparse
 import sys
@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(
     description='See description below to see all available options')
 
 parser.add_argument('-d', '--data',
-                    help='Input directory containing images and labels',
+                    help='Input directory containing image and label',
                     required=True)
 
 parser.add_argument('-s', '--size', type=int,
@@ -69,7 +69,7 @@ count = 0
 max_num = 6500.00
 num_image_channels = 3
 num_label_channels = 1
-num_epoch = 300
+num_epoch = 100
 
 # Defining input paths
 image_lo = os.path.join(data_lo, 'image')
@@ -164,7 +164,7 @@ for j in range(num_split):
     temp_train_image = train_image_split[j]
     temp_train_label = train_label_split[j]
     print(temp_train_label.shape, temp_train_image.shape)
-    #
+
     train_im = np.zeros((len(temp_train_image), image_size,
                          image_size, num_image_channels))
     train_lb = np.zeros((len(temp_train_label), image_size,
@@ -180,8 +180,9 @@ for j in range(num_split):
     model_loss = loss.dice_coef_loss
     # model_loss = jaccard_loss(100)
 
-    # Defining model
-    umodel = model.stan_unet(image_size)
+    if j < 1:
+        # Defining model
+        umodel = model.unet(image_size)
 
     # Compiling model
     umodel.compile(optimizer=Adam(lr=1e-4),  # loss = 'binary_crossentropy', metrics = ['accuracy'])

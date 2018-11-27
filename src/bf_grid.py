@@ -4,7 +4,7 @@ import time
 
 
 def bf_grid(image_lo, image_size1, image_size2, overlap, tile_image_lo):
-    gridding = 'bf_gridding.py'
+    gridding = 'src/bf_gridding.py'
 
     extension1 = 'tif'
     extension2 = 'tiff'
