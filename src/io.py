@@ -9,39 +9,100 @@ from src.bf_grid import bf_grid
 
 
 class train_data():
-    def __init__(self, image_lo, label_lo, image_size, count):
-        self.image = []
-        self.label = []
-        for file in os.listdir(image_lo):
+    def __init__(self):
+        self.image_list = []
+        self.label_list = []
+        self.count = 0
+
+        self.path_image = []
+        self.path_label = []
+        self.image_size = []
+        self.max_num_cpu = 50000.00
+        self.max_num_gpu = 6500.00
+        self.image_part_list = []
+        self.label_part_list = []
+        self.geodata = {}
+
+        # storing geo-referencing information
+
+
+    # Spliting list if it is greater than max_num_cpu
+    def split_list(self):
+
+        part = int(math.ceil(len(self.image_list)/self.max_num_cpu))
+        length = len(self.image_list)
+
+        return [self.image_list[i*length // part: (i+1)*length // part]
+                for i in range(part)]
+
+    # Creating list of data (images and labels)
+    def list_data(self):
+        list_geotransform = []
+        list_geoprojection = []
+        list_size = []
+        list_name = []
+        
+        for file in os.listdir(self.path_image):
             if file.endswith(".tif"):
-                if os.path.isfile(os.path.abspath(os.path.join(image_lo, file))) == False:
+                if os.path.isfile(os.path.abspath(os.path.join(self.path_image, file))) == False:
                     print('File %s not found' %
-                          (os.path.abspath(os.path.join(image_lo, file))))
+                          (os.path.abspath(os.path.join(self.path_image, file))))
                     continue
-#                    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
+                #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
 
-                if os.path.isfile(os.path.abspath(os.path.join(label_lo, file))) == False:
+                if os.path.isfile(os.path.abspath(os.path.join(self.path_label, file))) == False:
                     print('File %s not found' %
-                          (os.path.abspath(os.path.join(label_lo, file))))
+                          (os.path.abspath(os.path.join(self.path_label, file))))
                     continue
-#                    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
+                #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
 
-                self.image.append(cv2.resize(cv2.imread(os.path.abspath(
-                    os.path.join(image_lo, file))), (image_size, image_size)))
-                self.label.append(cv2.resize(cv2.imread(os.path.abspath(
-                    os.path.join(label_lo, file)), 0), (image_size, image_size)))
-                count = count + 1
-                if count > 50000:
-                    break
-                # Printing num of images loaded
-                if count % 500 == 0:
-                    print(count)
+                self.image_list.append(os.path.abspath(
+                    os.path.join(self.path_label, file)))
 
-    def get_image(self):
-        return np.array(self.image)
+                self.label_list.append(os.path.abspath(
+                    os.path.join(self.path_label, file)))
 
-    def get_label(self):
-        return np.array(self.label)
+                self.count = self.count + 1
+
+                # Storing geo-referencing information
+                geotransform, geoprojection, size = read_tif(
+                    os.path.join(self.path_image, file))
+                list_geotransform.append(geotransform)
+                list_geoprojection.append(geoprojection)
+                list_name.append(file)
+                list_size.append(size)
+
+        # Spliting large number of images into smaller parts to fit in CPU memory
+        self.image_part_list = self.split_list()
+        self.label_part_list = self.split_list()
+
+        print('Total number of images found: %s' % (self.count))
+        print('Total number of splits: %s' % (len(self.image_part_list)))
+
+        self.geodata = {'name': list_name,
+                        'size': list_size,
+                        'geotransform': list_geotransform,
+                        'geoprojection': list_geoprojection}
+
+
+def get_image(image_list, image_size):  # Loading images from list
+    image = []
+    print('Reading Images...')
+    for i in range(len(image_list)):
+        image.append(cv2.resize(cv2.imread(os.path.abspath(
+            os.path.join(image_list[i], file))), (image_size, image_size)))
+
+    return np.array(image)
+
+
+def get_label(label_list, image_size):  # Loading labels from list
+    label = []
+    print('Reading Labels...')
+    for i in range(train_data.count):
+        label.append(cv2.resize(cv2.imread(os.path.abspath(
+            os.path.join(label_list[i], file)), 0), (image_size, image_size)))
+
+    return np.array(label)
 
 
 def read_tif(tif_file):

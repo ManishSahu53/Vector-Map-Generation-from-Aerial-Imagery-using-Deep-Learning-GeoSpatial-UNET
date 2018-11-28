@@ -89,79 +89,52 @@ print('Tiling Completed')
 logger.debug('Tiling Completed')
 
 
-# image = image_location + "tiled"
-# label = image_location +"label_tiled"
-
-
-class train_data():
-    def __init__(self, image, count):
-        #    def __init__(self, image, label,count):
-        self.image = []
-        self.data = {}
-
-        list_geotransform = []
-        list_geoprojection = []
-        list_size = []
-        list_name = []
-
-        for file in os.listdir(image):
-            if file.endswith(".tif"):
-                geotransform, geoprojection, size = io.read_tif(
-                    os.path.join(image, file))
-                list_geotransform.append(geotransform)
-                list_geoprojection.append(geoprojection)
-                list_name.append(file)
-                list_size.append(size)
-
-                self.image.append(cv2.resize(cv2.imread(os.path.join(
-                    image, file)), (image_size, image_size)))
-                count = count + 1
-                if count % 500 == 0:
-                    print('reading images : %s' % (count))
-
-        self.data = {'name': list_name,
-                     'size': list_size,
-                     'geotransform': list_geotransform,
-                     'geoprojection': list_geoprojection}
-
-    def get_image(self):
-        return np.array(self.image)
-
-    def get_data(self):
-        return self.data
-
-
-count = 0
-
 # load all the training images
-train_set = train_data(path_tile_image, count)
+train_set = io.train_data()
 
-# get the training image and segmented image
-train_image = train_set.get_image()
+# Definging inputs to the class
+train_set.path_image = path_tile_image
+train_set.image_size = 200
+train_set.max_num_cpu = 50000.00
+train_set.max_num_gpu = 6500.00
 
-shape = train_image.shape
-train_image = np.resize(train_image, [shape[0], shape[1], shape[2], 3])
+# Listing images
+train_set.list_data()
+part = len(train_set.image_part_list)
 
-# get name,size,geo referencing data
-data = train_set.get_data()
+for k in range(part):
 
-# defining loss functions
-loss_ = loss.dice_coef_loss
+    # Loading the training image and labeled image
+    train_image = io.get_image(
+        train_set.image_part_list[k], train_set.image_size)
 
-# loading model from model file not weights file
-model = load_model(path_model, custom_objects={
-                   'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
+    shape_train_image = train_image.shape
 
-# prediction model
-predict_result = model.predict(
-    train_image, batch_size=16, verbose=1)  # , steps=None)
+    # Printing type and number of imgaes and labels
+    print("shape of train_image" + str(shape_train_image))
 
+    train_image = np.resize(train_image, [
+                            shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
 
-for i in range(predict_result.shape[0]):
-    # im = train_images[i]
-    lb = predict_result[i, :, :, :]
-    lb = np.round(lb, decimals=0)
-    im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
+    # get name,size,geo referencing data
+    data = train_set.get_data()
 
-    io.write_tif(im_path, lb*255, data['geotransform']
-                 [i], data['geoprojection'][i], data['size'][i])
+    # defining loss functions
+    loss_ = loss.dice_coef_loss
+
+    # loading model from model file not weights file
+    model = load_model(path_model, custom_objects={
+        'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
+
+    # prediction model
+    predict_result = model.predict(
+        train_image, batch_size=16, verbose=1)  # , steps=None)
+
+    for i in range(predict_result.shape[0]):
+        # im = train_images[i]
+        lb = predict_result[i, :, :, :]
+        lb = np.round(lb, decimals=0)
+        im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
+
+        io.write_tif(im_path, lb*255, data['geotransform']
+                     [i], data['geoprojection'][i], data['size'][i])

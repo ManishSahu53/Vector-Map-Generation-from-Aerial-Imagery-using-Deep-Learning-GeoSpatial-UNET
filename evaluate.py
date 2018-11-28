@@ -76,112 +76,80 @@ checkdir(path_predict)
 checkdir(path_tiled)
 checkdir(path_data)
 
-# image = image_location + "tiled"
-# label = image_location +"label_tiled"
-
-
-class train_data():
-    def __init__(self, image, label, count):
-        #    def __init__(self, image, label,count):
-        self.image = []
-        self.label = []
-        self.data = {}
-
-        list_geotransform = []
-        list_geoprojection = []
-        list_size = []
-        list_name = []
-
-        for file in os.listdir(image):
-            if file.endswith(".tif"):
-                geotransform, geoprojection, size = io.read_tif(
-                    os.path.join(image, file))
-                list_geotransform.append(geotransform)
-                list_geoprojection.append(geoprojection)
-                list_name.append(file)
-                list_size.append(size)
-
-                self.image.append(cv2.resize(cv2.imread(os.path.join(
-                    image, file)), (image_size, image_size)))
-                count = count + 1
-                if count % 500 == 0:
-                    print('reading images : %s' % (count))
-
-        self.data = {'name': list_name,
-                     'size': list_size,
-                     'geotransform': list_geotransform,
-                     'geoprojection': list_geoprojection}
-
-        for file in os.listdir(label):
-            if file.endswith(".tif"):
-                # print(label+"/"+file)
-                # label_array, _, _, _ = io.read_tif(os.path.join(label, file))
-                self.label.append(cv2.resize(cv2.imread(os.path.join(
-                    label, file)), (image_size, image_size)))
-
-    def get_image(self):
-        return np.array(self.image)
-
-    def get_label(self):
-        return np.array(self.label)
-
-    def get_data(self):
-        return self.data
-
-
-count = 0
-
 # load all the training images
-train_set = train_data(path_tile_image, path_tile_label, count)
+train_set = io.train_data()
 
-# get the training image and segmented image
-train_image = train_set.get_image()
-label_image = train_set.get_label()
+# Definging inputs to the class
+train_set.path_image = path_tile_image
+train_set.path_label = path_tile_label
+train_set.image_size = 200
+train_set.max_num_cpu = 50000.00
+train_set.max_num_gpu = 6500.00
 
-shape = train_image.shape
-train_image = np.resize(train_image, [shape[0], shape[1], shape[2], 3])
-label_image = np.resize(label_image, [shape[0], shape[1], shape[2], 1])
+# Listing images
+train_set.list_data()
 
-# get name,size,geo referencing data
-data = train_set.get_data()
+part = len(train_set.image_part_list)
 
-# defining loss functions
-loss_ = loss.dice_coef_loss
+for k in range(part):
 
-# loading model from model file not weights file
-model = load_model(path_model, custom_objects={
-                   'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
+    # Loading the training image and labeled image
+    train_image = io.get_image(
+        train_set.image_part_list[k], train_set.image_size)
+    train_label = io.get_label(
+        train_set.label_part_list[k], train_set.image_size)
 
-# evaluating model
-eval_score = model.evaluate(
-    train_image, label_image, batch_size=16, verbose=1)  # , sample_weight=None, steps=None)
+    shape_train_image = train_image.shape
+    shape_train_label = train_label.shape
 
-print('Model loss is : %s' % (eval_score[0]))
-print('Model accuracy is : %s' % (eval_score[1]))
-print('Model dice coefficient is : %s' % (eval_score[2]))
-print('Model Jacard coefficient is : %s' % (eval_score[3]))
+    # Printing type and number of imgaes and labels
+    print("shape of train_image" + str(shape_train_image))
+    print("shape of train_label" + str(shape_train_label))
 
-# prediction model
-predict_result = model.predict(
-    train_image, batch_size=16, verbose=1)  # , steps=None)
+    train_image = np.resize(train_image, [
+                            shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
+    label_image = np.resize(label_image, [
+                            shape_train_image[0], shape_train_image[1], shape_train_image[2], 1])
 
+    # get name,size,geo referencing data
+    data = io.get_geodata()
 
-for i in range(predict_result.shape[0]):
-    # im = train_images[i]
-    lb = predict_result[i, :, :, :]
-    lb = np.round(lb, decimals=0)
-    im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
+    # defining loss functions
+    loss_ = loss.dice_coef_loss
 
-    io.write_tif(im_path, lb*255, data['geotransform']
-                 [i], data['geoprojection'][i], data['size'][i])
-#    cv2.imwrite(im_path,lb*255)
+    # loading model from model file not weights file
+    model = load_model(path_model, custom_objects={
+        'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
 
-# merging = []
-# output_vrt = os.path.join(path_data, 'merged.vrt')
-# for root, dirs, files in os.walk(path_predict):
-#     for file in files:
-#         if ".tif" in file:
-#             merging.append(file)
+    # evaluating model
+    eval_score = model.evaluate(
+        train_image, label_image, batch_size=16, verbose=1)  # , sample_weight=None, steps=None)
 
-# gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
-#     srcNodata=-9999, VRTNodata=-9999))
+    print('Model loss is : %s' % (eval_score[0]))
+    print('Model accuracy is : %s' % (eval_score[1]))
+    print('Model dice coefficient is : %s' % (eval_score[2]))
+    print('Model Jacard coefficient is : %s' % (eval_score[3]))
+
+    # prediction model
+    predict_result = model.predict(
+        train_image, batch_size=16, verbose=1)  # , steps=None)
+
+    for i in range(predict_result.shape[0]):
+        # im = train_images[i]
+        lb = predict_result[i, :, :, :]
+        lb = np.round(lb, decimals=0)
+        im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
+
+        io.write_tif(im_path, lb*255, data['geotransform']
+                     [i], data['geoprojection'][i], data['size'][i])
+    #    cv2.imwrite(im_path,lb*255)
+
+    # merging = []
+    # output_vrt = os.path.join(path_data, 'merged.vrt')
+    # for root, dirs, files in os.walk(path_predict):
+    #     for file in files:
+    #         if ".tif" in file:
+    #             merging.append(file)
+
+    # gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
+    #     srcNodata=-9999, VRTNodata=-9999))
