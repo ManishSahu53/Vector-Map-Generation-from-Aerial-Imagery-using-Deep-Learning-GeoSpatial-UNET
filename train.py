@@ -70,6 +70,7 @@ max_num = 6500.00
 num_image_channels = 3
 num_label_channels = 1
 num_epoch = 100
+percent_overlap = 0.30
 
 # Defining input paths
 image_lo = os.path.join(data_lo, 'image')
@@ -99,8 +100,10 @@ checkdir(tile_label_lo)
 print('Tiling Images ...')
 
 if skip_gridding == 0:
-    tile_image = io.checkres(image_lo, image_size, tile_image_lo)
-    tile_label = io.checkres(label_lo, image_size, tile_label_lo)
+    tile_image = io.checkres(image_lo, image_size,
+                             tile_image_lo, percent_overlap)
+    tile_label = io.checkres(label_lo, image_size,
+                             tile_label_lo, percent_overlap)
 
 print('Tiling Completed')
 # if tile_image == True:

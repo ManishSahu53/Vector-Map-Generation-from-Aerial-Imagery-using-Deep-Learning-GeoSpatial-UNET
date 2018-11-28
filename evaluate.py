@@ -11,6 +11,7 @@ import time
 import argparse
 import logging
 from src.io import checkdir
+import gdal
 
 # Setup logging
 logger = log.get_logger('Testing')
@@ -28,17 +29,12 @@ parser.add_argument('-s', '--size', type=int,
                     default=200,
                     required=False)
 
-parser.add_argument('-c', '--classes', type=int,
-                    help='Input number of classes.[Default] = 1',
-                    default=1,
-                    required=False)
-
 parser.add_argument('-sg', '--skip_gridding', type=int,
                     help='If gridding is already done then skip it. [Default] is No = 0',
                     default=0,
                     required=False)
 
-parser.add_argument('-m', '--model', type=int,
+parser.add_argument('-m', '--model',
                     help='Input pre-trained model file',
                     required=True)
 
@@ -46,9 +42,9 @@ parser.add_argument('-m', '--model', type=int,
 args = parser.parse_args()
 path_data = args.data
 image_size = args.size
-num_class = args.classes
 skip_gridding = args.skip_gridding
 path_model = args.model
+
 
 start_time = time.time()
 
@@ -65,9 +61,20 @@ path_predict = os.path.join(path_result, 'prediction')
 path_tile_image = os.path.join(path_tiled, 'image/')
 path_tile_label = os.path.join(path_tiled, 'label/')
 
+print('Tiling Images ...')
+
+if skip_gridding == 0:
+    tile_image = io.checkres(path_image, image_size, path_tile_image)
+    tile_label = io.checkres(path_label, image_size, path_tile_label)
+
+print('Tiling Completed')
+
 # Creating directory
 checkdir(path_tile_image)
 checkdir(path_tile_label)
+checkdir(path_predict)
+checkdir(path_tiled)
+checkdir(path_data)
 
 # image = image_location + "tiled"
 # label = image_location +"label_tiled"
@@ -98,7 +105,7 @@ class train_data():
                     image, file)), (image_size, image_size)))
                 count = count + 1
                 if count % 500 == 0:
-                    print(count)
+                    print('reading images : %s' % (count))
 
         self.data = {'name': list_name,
                      'size': list_size,
@@ -131,7 +138,7 @@ train_set = train_data(path_tile_image, path_tile_label, count)
 train_image = train_set.get_image()
 label_image = train_set.get_label()
 
-shape = train_images.shape
+shape = train_image.shape
 train_image = np.resize(train_image, [shape[0], shape[1], shape[2], 3])
 label_image = np.resize(label_image, [shape[0], shape[1], shape[2], 1])
 
@@ -146,16 +153,17 @@ model = load_model(path_model, custom_objects={
                    'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
 
 # evaluating model
-eval_score, eval_accuracy = model.evaluate(
+eval_score = model.evaluate(
     train_image, label_image, batch_size=16, verbose=1)  # , sample_weight=None, steps=None)
 
-print('Score is: ' + str(eval_score))
-print('Accuracy is: ' + str(eval_accuracy))
-
+print('Model loss is : %s' % (eval_score[0]))
+print('Model accuracy is : %s' % (eval_score[1]))
+print('Model dice coefficient is : %s' % (eval_score[2]))
+print('Model Jacard coefficient is : %s' % (eval_score[3]))
 
 # prediction model
 predict_result = model.predict(
-    train_images, batch_size=16, verbose=1)  # , steps=None)
+    train_image, batch_size=16, verbose=1)  # , steps=None)
 
 
 for i in range(predict_result.shape[0]):
@@ -167,3 +175,13 @@ for i in range(predict_result.shape[0]):
     io.write_tif(im_path, lb*255, data['geotransform']
                  [i], data['geoprojection'][i], data['size'][i])
 #    cv2.imwrite(im_path,lb*255)
+
+# merging = []
+# output_vrt = os.path.join(path_data, 'merged.vrt')
+# for root, dirs, files in os.walk(path_predict):
+#     for file in files:
+#         if ".tif" in file:
+#             merging.append(file)
+
+# gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
+#     srcNodata=-9999, VRTNodata=-9999))
