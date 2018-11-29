@@ -38,8 +38,18 @@ parser.add_argument('-m', '--model',
                     help='Input pre-trained model file',
                     required=True)
 
-parser.add_argument('-t', '--tiling', type=int,
-                    help='Input tiling size of image to be used. [Default] = 200',
+parser.add_argument('-m_cpu', '--max_cpu', type=float,
+                    help='Maximum number of images in RAM at once. [Default] is = 50000.00',
+                    default=50000.00,
+                    required=False)
+
+parser.add_argument('-m_gpu', '--max_gpu', type=float,
+                    help='Maximum number of image in GPU at once. [Default] is = 6500.00',
+                    default=6500.00,
+                    required=False)
+
+parser.add_argument('-g_tile', '--grid_size', type=int,
+                    help='Size of gridding tiles. [Default] is = 200',
                     default=200,
                     required=False)
 
@@ -49,7 +59,10 @@ path_data = args.data
 image_size = args.size
 skip_gridding = args.skip_gridding
 path_model = args.model
-tiling_size = args.tiling
+grid_size = args.grid_size
+max_num_cpu = args.max_cpu
+max_num_gpu = args.max_gpu
+
 
 percent_overlap = 0.0
 logger.info('percent_overlap : ' + str(percent_overlap))
@@ -83,7 +96,7 @@ checkdir(path_tiled)
 checkdir(path_data)
 
 if skip_gridding == 0:
-    tile_image = io.checkres(path_image, tiling_size,
+    tile_image = io.checkres(path_image, grid_size,
                              path_tile_image, percent_overlap)
 
 print('Tiling Completed')
@@ -97,9 +110,9 @@ train_set = io.train_data()
 train_set.path_image = path_tile_image
 train_set.path_label = path_tile_image
 
-train_set.image_size = 200
-train_set.max_num_cpu = 50000.00
-train_set.max_num_gpu = 6500.00
+train_set.image_size = grid_size
+train_set.max_num_cpu = max_num_cpu
+train_set.max_num_gpu = max_num_gpu
 
 # Listing images
 train_set.list_data()
@@ -144,3 +157,4 @@ for k in range(part):
                      [i], data['geoprojection'][i], data['size'][i])
 
 logger.info('Completed')
+sys.exit()

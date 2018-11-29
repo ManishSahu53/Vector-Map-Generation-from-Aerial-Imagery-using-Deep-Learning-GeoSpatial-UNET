@@ -42,6 +42,30 @@ parser.add_argument('-sg', '--skip_gridding', type=int,
                     default=0,
                     required=False)
 
+parser.add_argument('-m_cpu', '--max_cpu', type=float,
+                    help='Maximum number of images in RAM at once. [Default] is = 50000.00',
+                    default=50000.00,
+                    required=False)
+
+parser.add_argument('-m_gpu', '--max_gpu', type=float,
+                    help='Maximum number of image in GPU at once. [Default] is = 6500.00',
+                    default=6500.00,
+                    required=False)
+
+parser.add_argument('-gs', '--grid_size', type=int,
+                    help='Size of gridding tiles. [Default] is = 200',
+                    default=200,
+                    required=False)
+
+parser.add_argument('-op', '--overlap', type=int,
+                    help='Overlap percentage when gridding. [Default] is = 0',
+                    default=0,
+                    required=False)
+
+parser.add_argument('-e', '--epoch', type=int,
+                    help='Epoch of training. [Default] is = 200',
+                    default=200,
+                    required=False)
 
 # Parsing arguments
 args = parser.parse_args()
@@ -49,6 +73,11 @@ data_lo = args.data
 image_size = args.size
 num_class = args.classes
 skip_gridding = args.skip_gridding
+max_num_cpu = args.max_cpu
+max_num_gpu = args.max_gpu
+grid_size = args.grid_size
+percent_overlap = args.overlap
+num_epoch = args.epoch
 
 # Output locations
 result_lo = os.path.join(data_lo, 'result')
@@ -75,18 +104,20 @@ if not os.path.exists(image_lo):
     image_lo = os.path.join(data_lo, 'images')
     if not os.path.exists(image_lo):
         print('image/s path inside %s location doesnt exist. Make sure you have folder name image or images inside %s' % (data_lo, data_lo))
-        logger.critical('image/s path inside %s location doesnt exist. Make sure you have folder name image or images inside %s' % (data_lo, data_lo))
+        logger.critical(
+            'image/s path inside %s location doesnt exist. Make sure you have folder name image or images inside %s' % (data_lo, data_lo))
 
-        sys.exit()
+        sys.exit(-1)
 
 # Checking if label or labes path exist in data folder
 if not os.path.exists(label_lo):
     label_lo = os.path.join(data_lo, 'labels')
     if not os.path.exists(label_lo):
         print('label/s path inside %s location doesnt exist. Make sure you have folder name label or labels inside %s' % (data_lo, data_lo))
-        logger.critical('label/s path inside %s location doesnt exist. Make sure you have folder name label or labels inside %s' % (data_lo, data_lo))
+        logger.critical(
+            'label/s path inside %s location doesnt exist. Make sure you have folder name label or labels inside %s' % (data_lo, data_lo))
 
-        sys.exit()
+        sys.exit(-1)
 
 # Checking its resolution
 path_tile_image = os.path.join(save_tile_lo, 'image/')
@@ -99,9 +130,9 @@ print('Tiling Images ...')
 logger.info('Tiling Images')
 
 if skip_gridding == 0:
-    tile_image = io.checkres(image_lo, image_size,
+    tile_image = io.checkres(image_lo, grid_size,
                              path_tile_image, percent_overlap)
-    tile_label = io.checkres(label_lo, image_size,
+    tile_label = io.checkres(label_lo, grid_size,
                              path_tile_label, percent_overlap)
 
 print('Tiling Completed')
@@ -117,9 +148,9 @@ train_set = io.train_data()
 # Definging inputs to the class
 train_set.path_image = path_tile_image
 train_set.path_label = path_tile_label
-train_set.image_size = 200
-train_set.max_num_cpu = 10000.00
-train_set.max_num_gpu = 1000.00
+train_set.image_size = image_size
+train_set.max_num_cpu = max_num_cpu
+train_set.max_num_gpu = max_num_gpu
 timing = {}
 
 # Hard Codeded values
@@ -127,8 +158,6 @@ timing = {}
 count = 0
 num_image_channels = 3
 num_label_channels = num_class
-num_epoch = 2
-percent_overlap = 0
 st_time = time.time()
 
 # Logging input data
@@ -190,13 +219,13 @@ for k in range(part):
         if num_class > 1:
             print('Multiclass segmentation is not supported yet')
             logger.critical('Multiclass segmentation is not supported yet')
-            sys.exit()
+            sys.exit(-1)
 
     # Checking if number of images and label are same or not
     if shape_train_image[0] != shape_train_label[0]:
         print('Num of images and label doesnt match. Make sure you have same num of image and corresponding labels in the data folder. %s != %s' % (
             str(shape_train_image[0]), str(shape_train_label[0])))
-        sys.exit()
+        sys.exit(-1)
 
     # Spliting number of images if it is greater than 7000 so that it can be fit in GPU memory
     # Maximum array that can be fit in GPU(6GB) 1060
@@ -308,3 +337,5 @@ logger.info('Completed')
 
 # model.evaluate(x=vali_images, y=vali_label, batch_size=32, verbose=1)#, sample_weight=None, steps=None)
 # model.predict( vali_images, batch_size=32, verbose=1)#, steps=None)
+logger.info('Completed')
+sys.exit()

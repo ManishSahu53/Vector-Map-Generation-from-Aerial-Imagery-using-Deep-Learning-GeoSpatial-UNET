@@ -38,12 +38,42 @@ parser.add_argument('-m', '--model',
                     help='Input pre-trained model file',
                     required=True)
 
+parser.add_argument('-m_cpu', '--max_cpu', type=float,
+                    help='Maximum number of images in RAM at once. [Default] is = 50000.00',
+                    default=50000.00,
+                    required=False)
+
+parser.add_argument('-m_gpu', '--max_gpu', type=float,
+                    help='Maximum number of image in GPU at once. [Default] is = 6500.00',
+                    default=6500.00,
+                    required=False)
+
+parser.add_argument('-gs', '--grid_size', type=int,
+                    help='Size of gridding tiles. [Default] is = 200',
+                    default=200,
+                    required=False)
+
+parser.add_argument('-s', '--size', type=int,
+                    help='Input size of image to be used. [Default] = 200',
+                    default=200,
+                    required=False)
+
+parser.add_argument('-op', '--overlap', type=int,
+                    help='Overlap percentage when gridding. [Default] is = 0',
+                    default=0,
+                    required=False)
+
 # Parsing arguments
 args = parser.parse_args()
 path_data = args.data
 image_size = args.size
 skip_gridding = args.skip_gridding
 path_model = args.model
+grid_size = args.grid_size
+max_num_cpu = args.max_cpu
+max_num_gpu = args.max_gpu
+max_num_gpu = args.size
+percent_overlap = args.overlap
 
 
 start_time = time.time()
@@ -83,11 +113,10 @@ train_set = io.train_data()
 # Definging inputs to the class
 train_set.path_image = path_tile_image
 train_set.path_label = path_tile_label
-train_set.image_size = 200
-train_set.max_num_cpu = 50000.00
-train_set.max_num_gpu = 6500.00
+train_set.image_size = image_size
+train_set.max_num_cpu = max_num_cpu
+train_set.max_num_gpu = max_num_gpu
 accuracy = {}
-percent_overlap = 0.0
 
 # Tiling images
 print('Tiling Images ...')
@@ -193,3 +222,5 @@ for k in range(part):
     #     srcNodata=-9999, VRTNodata=-9999))
 
 io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
+logger.info('Completed')
+sys.exit()
