@@ -67,6 +67,11 @@ parser.add_argument('-e', '--epoch', type=int,
                     default=200,
                     required=False)
 
+parser.add_argument('-m', '--model',
+                    help='Continuining training from the given model. [Default] is no model given',
+                    default=float('nan'),
+                    required=False)
+
 # Parsing arguments
 args = parser.parse_args()
 data_lo = args.data
@@ -78,6 +83,7 @@ max_num_gpu = args.max_gpu
 grid_size = args.grid_size
 percent_overlap = args.overlap
 num_epoch = args.epoch
+prev_model = args.model
 
 # Output locations
 result_lo = os.path.join(data_lo, 'result')
@@ -282,6 +288,10 @@ for k in range(part):
             print('Defining model')
             logger.warning('Defining model')
             umodel = model.unet(image_size)
+
+            # Continue from the previouse defined model
+            if prev_model == prev_model:
+                umodel.load_weights(prev_model)
 
         # Compiling model
         umodel.compile(optimizer=Adam(lr=1e-4),  # loss = 'binary_crossentropy', metrics = ['accuracy'])
