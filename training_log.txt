@@ -1,0 +1,5 @@
+[18:47:44] {train.py:136} INFO - Tiling Images
+[18:50:20] {train.py:136} INFO - Tiling Images
+[18:51:37] {train.py:136} INFO - Tiling Images
+[18:52:30] {train.py:136} INFO - Tiling Images
+[18:53:01] {train.py:136} INFO - Tiling Images
