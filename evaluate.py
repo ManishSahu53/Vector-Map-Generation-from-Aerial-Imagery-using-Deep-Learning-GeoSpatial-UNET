@@ -130,9 +130,9 @@ for k in range(part):
     # Resizing to correct shape
     train_image = np.resize(train_image, [
                             shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
-    label_image = np.resize(train_label, [
+    train_label = np.resize(train_label, [
                             shape_train_label[0], shape_train_label[1], shape_train_label[2], 1])
-
+    print(train_label.shape)
     # Printing type and number of imgaes and labels
     print("shape of train_image" + str(shape_train_image))
     print("shape of train_label" + str(shape_train_label))
@@ -151,7 +151,7 @@ for k in range(part):
 
     # evaluating model
     eval_score = model.evaluate(
-        train_image, label_image, batch_size=16, verbose=1)  # , sample_weight=None, steps=None)
+        train_image, train_label, batch_size=16, verbose=1)  # , sample_weight=None, steps=None)
 
     print('Model loss is : %s' % (eval_score[0]))
     print('Model accuracy is : %s' % (eval_score[1]))

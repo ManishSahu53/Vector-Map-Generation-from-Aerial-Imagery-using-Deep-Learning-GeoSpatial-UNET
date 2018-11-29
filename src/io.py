@@ -30,8 +30,8 @@ class train_data():
         part = int(math.ceil(len(self.image_list)/self.max_num_cpu))
         length = len(self.image_list)
 
-        return [self.image_list[i*length // part: (i+1)*length // part]
-                for i in range(part)]
+        return [[self.image_list[i*length // part: (i+1)*length // part] for i in range(part)],
+                [self.label_list[i*length // part: (i+1)*length // part] for i in range(part)]]
 
     # Creating list of data (images and labels)
     def list_data(self):
@@ -65,8 +65,7 @@ class train_data():
                 self.count = self.count + 1
 
         # Spliting large number of images into smaller parts to fit in CPU memory
-        self.image_part_list = self.split_list()
-        self.label_part_list = self.split_list()
+        [self.image_part_list, self.label_part_list] = self.split_list()
 
         print('Total number of images found: %s' % (self.count))
         print('Total number of splits: %s' % (len(self.image_part_list)))
@@ -91,7 +90,7 @@ def get_label(label_list, image_size):  # Loading labels from list
         if i % 500 == 0:
             print('Reading %s, %s' % (str(i), os.path.basename(label_list[i])))
         label.append(cv2.resize(cv2.imread(os.path.abspath(
-            label_list[i]), 0), (image_size, image_size)))
+            label_list[i])), (image_size, image_size)))
 
     return np.array(label)
 
