@@ -6,6 +6,8 @@ import sys
 import numpy as np
 from src.gridding import gridding
 from src.bf_grid import bf_grid
+import math
+import json
 
 
 class train_data():
@@ -21,10 +23,6 @@ class train_data():
         self.max_num_gpu = 6500.00
         self.image_part_list = []
         self.label_part_list = []
-        self.geodata = {}
-
-        # storing geo-referencing information
-
 
     # Spliting list if it is greater than max_num_cpu
     def split_list(self):
@@ -37,11 +35,6 @@ class train_data():
 
     # Creating list of data (images and labels)
     def list_data(self):
-        list_geotransform = []
-        list_geoprojection = []
-        list_size = []
-        list_name = []
-        
         for file in os.listdir(self.path_image):
             if file.endswith(".tif"):
                 if os.path.isfile(os.path.abspath(os.path.join(self.path_image, file))) == False:
@@ -50,11 +43,18 @@ class train_data():
                     continue
                 #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
 
-                if os.path.isfile(os.path.abspath(os.path.join(self.path_label, file))) == False:
-                    print('File %s not found' %
-                          (os.path.abspath(os.path.join(self.path_label, file))))
+                """
+                Only load labels with path is given. Else skip. 
+                This is because in case of testing, we dont have test labels
+                """
+                if len(self.path_label) != 0:
+                    if os.path.isfile(os.path.abspath(os.path.join(self.path_label, file))) == False:
+                        print('File %s not found' %
+                              (os.path.abspath(os.path.join(self.path_label, file))))
+                        continue
+                    #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
+                else:
                     continue
-                #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
 
                 self.image_list.append(os.path.abspath(
                     os.path.join(self.path_label, file)))
@@ -64,14 +64,6 @@ class train_data():
 
                 self.count = self.count + 1
 
-                # Storing geo-referencing information
-                geotransform, geoprojection, size = read_tif(
-                    os.path.join(self.path_image, file))
-                list_geotransform.append(geotransform)
-                list_geoprojection.append(geoprojection)
-                list_name.append(file)
-                list_size.append(size)
-
         # Spliting large number of images into smaller parts to fit in CPU memory
         self.image_part_list = self.split_list()
         self.label_part_list = self.split_list()
@@ -79,18 +71,15 @@ class train_data():
         print('Total number of images found: %s' % (self.count))
         print('Total number of splits: %s' % (len(self.image_part_list)))
 
-        self.geodata = {'name': list_name,
-                        'size': list_size,
-                        'geotransform': list_geotransform,
-                        'geoprojection': list_geoprojection}
-
 
 def get_image(image_list, image_size):  # Loading images from list
     image = []
     print('Reading Images...')
     for i in range(len(image_list)):
+        if i % 500 == 0:
+            print('Reading %s, %s' % (str(i), os.path.basename(image_list[i])))
         image.append(cv2.resize(cv2.imread(os.path.abspath(
-            os.path.join(image_list[i], file))), (image_size, image_size)))
+            image_list[i])), (image_size, image_size)))
 
     return np.array(image)
 
@@ -98,11 +87,37 @@ def get_image(image_list, image_size):  # Loading images from list
 def get_label(label_list, image_size):  # Loading labels from list
     label = []
     print('Reading Labels...')
-    for i in range(train_data.count):
+    for i in range(len(label_list)):
+        if i % 500 == 0:
+            print('Reading %s, %s' % (str(i), os.path.basename(label_list[i])))
         label.append(cv2.resize(cv2.imread(os.path.abspath(
-            os.path.join(label_list[i], file)), 0), (image_size, image_size)))
+            label_list[i]), 0), (image_size, image_size)))
 
     return np.array(label)
+
+
+# storing geo-referencing information
+def get_geodata(image_list):
+    geotransform_list = []
+    geoprojection_list = []
+    size_list = []
+    name_list = []
+    geodata = {}
+
+    # Storing geo-referencing information
+    for i in range(len(image_list)):
+        geotransform, geoprojection, size = read_tif(image_list[i])
+        geotransform_list.append(geotransform)
+        geoprojection_list.append(geoprojection)
+        name_list.append(os.path.basename(image_list[i]))
+        size_list.append(size)
+
+    geodata = {'name': name_list,
+               'size': size_list,
+               'geotransform': geotransform_list,
+               'geoprojection': geoprojection_list}
+
+    return geodata
 
 
 def read_tif(tif_file):
@@ -158,3 +173,11 @@ def checkres(path, size, output, percent_overlap):
 #    print('Gridding Images ...')
 #    gridding(args)
     return True
+
+# Saving to JSON
+
+
+def tojson(dictA, file_json):
+    with open(file_json, 'w') as f:
+        json.dump(dictA, f, indent=4, separators=(',', ': '),
+                  ensure_ascii=False)

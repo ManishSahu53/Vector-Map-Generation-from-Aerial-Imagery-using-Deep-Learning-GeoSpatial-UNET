@@ -14,8 +14,8 @@ from src.io import checkdir
 import gdal
 
 # Setup logging
-logger = log.get_logger('Testing')
-log.log2file('Testing')
+logger = log.get_logger('evaluating')
+log.log2file('evaluating')
 
 parser = argparse.ArgumentParser(
     description='See description below to see all available options')
@@ -61,13 +61,14 @@ path_predict = os.path.join(path_result, 'prediction')
 path_tile_image = os.path.join(path_tiled, 'image/')
 path_tile_label = os.path.join(path_tiled, 'label/')
 
-print('Tiling Images ...')
-
-if skip_gridding == 0:
-    tile_image = io.checkres(path_image, image_size, path_tile_image)
-    tile_label = io.checkres(path_label, image_size, path_tile_label)
-
-print('Tiling Completed')
+# Logging output paths
+logger.info('path_image : ' + path_image)
+logger.info('path_label : ' + path_label)
+logger.info('path_result : ' + path_result)
+logger.info('path_tiled : ' + path_tiled)
+logger.info('path_predict : ' + path_predict)
+logger.info('path_tile_image : ' + path_tile_image)
+logger.info('path_tile_label : ' + path_tile_label)
 
 # Creating directory
 checkdir(path_tile_image)
@@ -85,12 +86,36 @@ train_set.path_label = path_tile_label
 train_set.image_size = 200
 train_set.max_num_cpu = 50000.00
 train_set.max_num_gpu = 6500.00
+accuracy = {}
+percent_overlap = 0.0
+
+# Tiling images
+print('Tiling Images ...')
+logger.info('Tiling Images..')
+
+if skip_gridding == 0:
+    tile_image = io.checkres(path_image, image_size,
+                             path_tile_image, percent_overlap)
+    tile_label = io.checkres(path_label, image_size,
+                             path_tile_label, percent_overlap)
+
+print('Tiling Completed')
+logger.info('Tiling Completed')
+
+# Logging inputs data
+logger.info('Tiling Completed')
+logger.info('path_tile_image : ' + str(path_tile_image))
+logger.info('path_tile_label : ' + str(path_tile_label))
+logger.info('image_size : ' + str(train_set.image_size))
+logger.info('max_num_cpu : ' + str(train_set.max_num_cpu))
+logger.info('max_num_gpu : ' + str(train_set.max_num_gpu))
+logger.info('percent_overlap : ' + str(percent_overlap))
 
 # Listing images
 train_set.list_data()
 
 part = len(train_set.image_part_list)
-
+print('Number of parts : %s' % (str(part)))
 for k in range(part):
 
     # Loading the training image and labeled image
@@ -102,17 +127,20 @@ for k in range(part):
     shape_train_image = train_image.shape
     shape_train_label = train_label.shape
 
+    # Resizing to correct shape
+    train_image = np.resize(train_image, [
+                            shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
+    label_image = np.resize(train_label, [
+                            shape_train_label[0], shape_train_label[1], shape_train_label[2], 1])
+
     # Printing type and number of imgaes and labels
     print("shape of train_image" + str(shape_train_image))
     print("shape of train_label" + str(shape_train_label))
-
-    train_image = np.resize(train_image, [
-                            shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
-    label_image = np.resize(label_image, [
-                            shape_train_image[0], shape_train_image[1], shape_train_image[2], 1])
+    logger.info("shape of train_image" + str(shape_train_image))
+    logger.info("shape of train_label" + str(shape_train_label))
 
     # get name,size,geo referencing data
-    data = io.get_geodata()
+    data = io.get_geodata(train_set.image_part_list[k])
 
     # defining loss functions
     loss_ = loss.dice_coef_loss
@@ -129,6 +157,16 @@ for k in range(part):
     print('Model accuracy is : %s' % (eval_score[1]))
     print('Model dice coefficient is : %s' % (eval_score[2]))
     print('Model Jacard coefficient is : %s' % (eval_score[3]))
+
+    # Logging model accuracies
+    logger.info('Model loss is : %s' % (eval_score[0]))
+    logger.info('Model accuracy is : %s' % (eval_score[1]))
+    logger.info('Model dice coefficient is : %s' % (eval_score[2]))
+    logger.info('Model Jacard coefficient is : %s' % (eval_score[3]))
+
+    # Saving accuracies to JSON
+    accuracy['Dice coefficient'] = eval_score[2]
+    accuracy['Jacard Coefficient'] = eval_score[3]
 
     # prediction model
     predict_result = model.predict(
@@ -153,3 +191,5 @@ for k in range(part):
 
     # gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
     #     srcNodata=-9999, VRTNodata=-9999))
+
+io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))

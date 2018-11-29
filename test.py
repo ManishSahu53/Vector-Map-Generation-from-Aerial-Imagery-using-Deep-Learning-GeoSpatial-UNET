@@ -52,28 +52,29 @@ path_model = args.model
 tiling_size = args.tiling
 
 percent_overlap = 0.0
+logger.info('percent_overlap : ' + str(percent_overlap))
 
 start_time = time.time()
 
 # input data
 path_image = os.path.join(path_data, 'image')
-logger.debug('Image path is %s' % (path_image))
+logger.info('Image path is %s' % (path_image))
 
 # Results path
 path_result = os.path.join(path_data, 'result')
-logger.debug('Result path is %s' % (path_result))
+logger.info('Result path is %s' % (path_result))
 
 path_tiled = os.path.join(path_result, 'tiled')
 
 path_predict = os.path.join(path_result, 'prediction')
-logger.debug('Predict path is %s' % (path_predict))
+logger.info('Predict path is %s' % (path_predict))
 
 # Tiled path
 path_tile_image = os.path.join(path_tiled, 'image/')
-logger.debug('Tile image path is %s' % (path_tile_image))
+logger.info('Tile image path is %s' % (path_tile_image))
 
 print('Tiling Images ...')
-logger.debug('Tiling Images..')
+logger.info('Tiling Images..')
 
 # Creating directory
 checkdir(path_tile_image)
@@ -86,7 +87,7 @@ if skip_gridding == 0:
                              path_tile_image, percent_overlap)
 
 print('Tiling Completed')
-logger.debug('Tiling Completed')
+logger.info('Tiling Completed')
 
 
 # load all the training images
@@ -94,6 +95,8 @@ train_set = io.train_data()
 
 # Definging inputs to the class
 train_set.path_image = path_tile_image
+train_set.path_label = path_tile_image
+
 train_set.image_size = 200
 train_set.max_num_cpu = 50000.00
 train_set.max_num_gpu = 6500.00
@@ -112,12 +115,13 @@ for k in range(part):
 
     # Printing type and number of imgaes and labels
     print("shape of train_image" + str(shape_train_image))
+    logger.info("shape of train_image" + str(shape_train_image))
 
     train_image = np.resize(train_image, [
                             shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
 
     # get name,size,geo referencing data
-    data = train_set.get_data()
+    data = io.get_geodata(train_set.image_part_list[k])
 
     # defining loss functions
     loss_ = loss.dice_coef_loss
@@ -138,3 +142,5 @@ for k in range(part):
 
         io.write_tif(im_path, lb*255, data['geotransform']
                      [i], data['geoprojection'][i], data['size'][i])
+
+logger.info('Completed')
