@@ -36,7 +36,7 @@ class train_data():
     # Creating list of data (images and labels)
     def list_data(self):
         for file in os.listdir(self.path_image):
-            if file.endswith(".tif"):
+            if file.endswith(".tif") or file.endswith(".tiff"):
                 if os.path.isfile(os.path.abspath(os.path.join(self.path_image, file))) == False:
                     print('File %s not found' %
                           (os.path.abspath(os.path.join(self.path_image, file))))
