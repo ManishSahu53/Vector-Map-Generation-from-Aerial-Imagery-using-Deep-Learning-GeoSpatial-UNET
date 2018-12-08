@@ -3,6 +3,7 @@ from src import loss, io, log
 # from matplotlib import pyplot as plt
 from keras.models import load_model
 import os
+import sys
 from keras.models import Model
 from keras import backend as K
 import cv2
@@ -53,6 +54,11 @@ parser.add_argument('-g_tile', '--grid_size', type=int,
                     default=200,
                     required=False)
 
+parser.add_argument('-op', '--overlap', type=int,
+                    help='Overlap percentage when gridding. [Default] is = 0',
+                    default=0,
+                    required=False)
+
 # Parsing arguments
 args = parser.parse_args()
 path_data = args.data
@@ -62,9 +68,9 @@ path_model = args.model
 grid_size = args.grid_size
 max_num_cpu = args.max_cpu
 max_num_gpu = args.max_gpu
+percent_overlap = args.overlap
 
 
-percent_overlap = 0.0
 logger.info('percent_overlap : ' + str(percent_overlap))
 
 start_time = time.time()

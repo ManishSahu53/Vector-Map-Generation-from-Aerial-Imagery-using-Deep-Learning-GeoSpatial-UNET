@@ -3,6 +3,7 @@ from src import loss, io, log
 # from matplotlib import pyplot as plt
 from keras.models import load_model
 import os
+import sys
 from keras.models import Model
 from keras import backend as K
 import cv2
@@ -23,11 +24,6 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-d', '--data',
                     help='Input directory containing image and label',
                     required=True)
-
-parser.add_argument('-s', '--size', type=int,
-                    help='Input size of image to be used. [Default] = 200',
-                    default=200,
-                    required=False)
 
 parser.add_argument('-sg', '--skip_gridding', type=int,
                     help='If gridding is already done then skip it. [Default] is No = 0',
@@ -72,7 +68,6 @@ path_model = args.model
 grid_size = args.grid_size
 max_num_cpu = args.max_cpu
 max_num_gpu = args.max_gpu
-max_num_gpu = args.size
 percent_overlap = args.overlap
 
 

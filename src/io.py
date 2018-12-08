@@ -25,13 +25,12 @@ class train_data():
         self.label_part_list = []
 
     # Spliting list if it is greater than max_num_cpu
-    def split_list(self):
+    def split_list(self, list):
 
-        part = int(math.ceil(len(self.image_list)/self.max_num_cpu))
-        length = len(self.image_list)
+        length = len(list)
+        part = int(math.ceil(length/self.max_num_cpu))
 
-        return [[self.image_list[i*length // part: (i+1)*length // part] for i in range(part)],
-                [self.label_list[i*length // part: (i+1)*length // part] for i in range(part)]]
+        return [list[i*length // part: (i+1)*length // part] for i in range(part)]
 
     # Creating list of data (images and labels)
     def list_data(self):
@@ -57,15 +56,16 @@ class train_data():
                     continue
 
                 self.image_list.append(os.path.abspath(
-                    os.path.join(self.path_label, file)))
-
+                    os.path.join(self.path_image, file)))
+                
                 self.label_list.append(os.path.abspath(
                     os.path.join(self.path_label, file)))
 
                 self.count = self.count + 1
 
         # Spliting large number of images into smaller parts to fit in CPU memory
-        [self.image_part_list, self.label_part_list] = self.split_list()
+        self.image_part_list = self.split_list(self.image_list)
+        self.label_part_list = self.split_list(self.label_list)
 
         print('Total number of images found: %s' % (self.count))
         print('Total number of splits: %s' % (len(self.image_part_list)))
@@ -152,7 +152,7 @@ def checkres(path, size, output, percent_overlap):
     grid_size = size
 
     # 10% overlap to be taken
-    overlap = int(grid_size * percent_overlap)
+    overlap = int(grid_size * percent_overlap/100)
     bf_grid(path, size, size, overlap, output)
 #    for file in os.listdir(path):
 #        if file.endswith(".tif"):

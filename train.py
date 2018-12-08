@@ -265,7 +265,8 @@ for k in range(part):
         # Creating temporary train image and train labels.
         temp_train_image = train_image_split[j]
         temp_train_label = train_label_split[j]
-        print(temp_train_label.shape, temp_train_image.shape)
+        print('temp_train_image : %s' % str(temp_train_image.shape))
+        print('temp_train_label : %s' % str(temp_train_label.shape))
 
         train_im = np.zeros((len(temp_train_image), image_size,
                              image_size, num_image_channels))
