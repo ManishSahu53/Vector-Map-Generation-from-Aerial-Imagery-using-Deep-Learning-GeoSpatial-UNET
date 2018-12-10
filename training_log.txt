@@ -310,3 +310,54 @@
 [03:20:11] {train.py:213} INFO - shape of train_label(9245, 200, 200)
 [03:20:11] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
 [03:20:11] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
+[12:52:32] {train.py:136} INFO - Tiling Images
+[12:58:40] {train.py:145} INFO - Tiling Completed
+[12:58:40] {train.py:170} INFO - path_tile_image:road/result/tiled/image/
+[12:58:40] {train.py:171} INFO - path_tile_label:road/result/tiled/label/
+[12:58:40] {train.py:172} INFO - image_size:200
+[12:58:40] {train.py:173} INFO - max_num_cpu:50000.0
+[12:58:40] {train.py:174} INFO - max_num_gpu:6500.0
+[12:58:40] {train.py:175} INFO - num_image_channels:3
+[12:58:40] {train.py:176} INFO - num_label_channels:1
+[12:58:40] {train.py:177} INFO - num_epoch:200
+[12:59:08] {train.py:210} INFO - shape of train_image(35456, 200, 200, 3)
+[12:59:08] {train.py:213} INFO - shape of train_label(35456, 200, 200, 3)
+[12:59:08] {train.py:245} INFO - shape of Split train_image(5910, 200, 200, 3)
+[12:59:08] {train.py:248} INFO - shape of Split train_label(5910, 200, 200, 3)
+[13:01:58] {train.py:136} INFO - Tiling Images
+[13:01:58] {train.py:145} INFO - Tiling Completed
+[13:01:58] {train.py:170} INFO - path_tile_image:road/result/tiled/image/
+[13:01:58] {train.py:171} INFO - path_tile_label:road/result/tiled/label/
+[13:01:58] {train.py:172} INFO - image_size:200
+[13:01:58] {train.py:173} INFO - max_num_cpu:50000.0
+[13:01:58] {train.py:174} INFO - max_num_gpu:6500.0
+[13:01:58] {train.py:175} INFO - num_image_channels:3
+[13:01:58] {train.py:176} INFO - num_label_channels:1
+[13:01:58] {train.py:177} INFO - num_epoch:200
+[13:02:18] {train.py:210} INFO - shape of train_image(35456, 200, 200, 3)
+[13:02:18] {train.py:213} INFO - shape of train_label(35456, 200, 200)
+[13:02:18] {train.py:245} INFO - shape of Split train_image(5910, 200, 200, 3)
+[13:02:18] {train.py:248} INFO - shape of Split train_label(5910, 200, 200)
+[13:02:20] {train.py:290} WARNING - Defining model
+[18:53:24] {train.py:323} INFO - Saving model
+[18:53:25] {train.py:328} INFO - Saving weights
+[00:42:47] {train.py:323} INFO - Saving model
+[00:42:47] {train.py:328} INFO - Saving weights
+[06:29:16] {train.py:323} INFO - Saving model
+[06:29:17] {train.py:328} INFO - Saving weights
+[12:15:58] {train.py:323} INFO - Saving model
+[12:15:59] {train.py:328} INFO - Saving weights
+[18:04:19] {train.py:323} INFO - Saving model
+[18:04:20] {train.py:328} INFO - Saving weights
+[23:51:30] {train.py:323} INFO - Saving model
+[23:51:31] {train.py:328} INFO - Saving weights
+[00:06:57] {train.py:210} INFO - shape of train_image(35456, 200, 200, 3)
+[00:06:57] {train.py:213} INFO - shape of train_label(35456, 200, 200)
+[00:06:57] {train.py:245} INFO - shape of Split train_image(5910, 200, 200, 3)
+[00:06:57] {train.py:248} INFO - shape of Split train_label(5910, 200, 200)
+[05:55:02] {train.py:323} INFO - Saving model
+[05:55:05] {train.py:328} INFO - Saving weights
+[11:42:59] {train.py:323} INFO - Saving model
+[11:43:00] {train.py:328} INFO - Saving weights
+[17:32:24] {train.py:323} INFO - Saving model
+[17:32:25] {train.py:328} INFO - Saving weights

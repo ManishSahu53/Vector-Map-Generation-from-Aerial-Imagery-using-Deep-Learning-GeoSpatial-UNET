@@ -57,7 +57,7 @@ class train_data():
 
                 self.image_list.append(os.path.abspath(
                     os.path.join(self.path_image, file)))
-                
+
                 self.label_list.append(os.path.abspath(
                     os.path.join(self.path_label, file)))
 
@@ -90,7 +90,7 @@ def get_label(label_list, image_size):  # Loading labels from list
         if i % 500 == 0:
             print('Reading %s, %s' % (str(i), os.path.basename(label_list[i])))
         label.append(cv2.resize(cv2.imread(os.path.abspath(
-            label_list[i])), (image_size, image_size)))
+            label_list[i]), 0), (image_size, image_size)))
 
     return np.array(label)
 
