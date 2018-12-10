@@ -71,7 +71,8 @@ class train_data():
         print('Total number of splits: %s' % (len(self.image_part_list)))
 
 
-def get_image(image_list, image_size):  # Loading images from list
+# Loading images from list
+def get_image(image_list, image_size):
     image = []
     print('Reading Images...')
     for i in range(len(image_list)):
@@ -83,7 +84,8 @@ def get_image(image_list, image_size):  # Loading images from list
     return np.array(image)
 
 
-def get_label(label_list, image_size):  # Loading labels from list
+# Loading labels from list
+def get_label(label_list, image_size):
     label = []
     print('Reading Labels...')
     for i in range(len(label_list)):
@@ -119,6 +121,7 @@ def get_geodata(image_list):
     return geodata
 
 
+# Reading raster dataset
 def read_tif(tif_file):
     #    array = cv2.imread(tif_file)
     #    driver = gdal.GetDriverByName("GTiff")
@@ -131,6 +134,7 @@ def read_tif(tif_file):
     return geotransform, geoprojection, (size[1], size[0])
 
 
+# Writing raster dataset
 def write_tif(tif_file, array, geotransform, geoprojection, size):
     array = cv2.resize(array, size)
     driver = gdal.GetDriverByName("GTiff")
@@ -142,11 +146,13 @@ def write_tif(tif_file, array, geotransform, geoprojection, size):
     outdata.FlushCache()  # saves to disk!!
 
 
+# Checking and creating directory in the path
 def checkdir(path):
     if not os.path.exists(path):
         os.makedirs(os.path.abspath(path))
 
 
+# Checking resolution of the input image
 def checkres(path, size, output, percent_overlap):
     #    inputs = []
     grid_size = size
@@ -173,10 +179,27 @@ def checkres(path, size, output, percent_overlap):
 #    gridding(args)
     return True
 
+
 # Saving to JSON
-
-
 def tojson(dictA, file_json):
     with open(file_json, 'w') as f:
         json.dump(dictA, f, indent=4, separators=(',', ': '),
                   ensure_ascii=False)
+
+
+# Merging all the tiled tif to single tif using gdalbuildvrt and gdaltranslate
+def merge_tile(path_output, list_tif):
+    # Building VRT
+    temp = gdal.BuildVRT('', list_tif, VRTNodata=-9999)
+
+    # Saving to TIF
+    output = gdal.Translate(
+        path_output, temp, format='GTiff', creationOptions=['COMPRESS=LZW'])
+
+    # Creating pyramids
+    gdal.SetConfigOption('COMPRESS_OVERVIEW', 'LZW')
+    output.BuildOverviews('NEAREST', [2, 4, 8, 16, 32])
+    output.FlushCache()
+
+    # Success
+    print('Successfully saved to %s' % (path_output))

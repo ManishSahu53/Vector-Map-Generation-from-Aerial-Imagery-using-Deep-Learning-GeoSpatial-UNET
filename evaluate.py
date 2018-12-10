@@ -216,6 +216,10 @@ for k in range(part):
     # gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
     #     srcNodata=-9999, VRTNodata=-9999))
 
+# Merging all the tif datasets
+io.merge_tile(path_merged_prediction, data['name'])
+
+# Saving to accuracy.json
 io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
 logger.info('Completed')
 sys.exit()

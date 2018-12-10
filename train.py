@@ -344,7 +344,6 @@ timing['Total Time'] = str(end_time)
 
 # Saving to JSON
 io.tojson(timing, os.path.join(result_lo, 'Timing.json'))
-logger.info('Completed')
 
 # model.evaluate(x=vali_images, y=vali_label, batch_size=32, verbose=1)#, sample_weight=None, steps=None)
 # model.predict( vali_images, batch_size=32, verbose=1)#, steps=None)

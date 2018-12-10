@@ -92,6 +92,10 @@ logger.info('Predict path is %s' % (path_predict))
 path_tile_image = os.path.join(path_tiled, 'image/')
 logger.info('Tile image path is %s' % (path_tile_image))
 
+# Merged Tiles path
+path_merged_prediction = os.path.join(path_result, 'merged_prediction')
+logger.info('Tile image path is %s' % (path_merged_prediction))
+
 print('Tiling Images ...')
 logger.info('Tiling Images..')
 
@@ -159,8 +163,13 @@ for k in range(part):
         lb = np.round(lb, decimals=0)
         im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
 
+        # Saving data to disk
         io.write_tif(im_path, lb*255, data['geotransform']
                      [i], data['geoprojection'][i], data['size'][i])
+
+# Merging tiled dataset to single tif
+logger.info('Merging tiled dataset')
+io.merge_tile(path_merged_prediction, data['name'])
 
 logger.info('Completed')
 sys.exit()
