@@ -81,10 +81,14 @@ path_label = os.path.join(path_data, 'label')
 path_result = os.path.join(path_data, 'result')
 path_tiled = os.path.join(path_result, 'tiled')
 path_predict = os.path.join(path_result, 'prediction')
+path_merged_prediction = os.path.join(path_result, 'merged_prediction')
 
 # Tiled path
 path_tile_image = os.path.join(path_tiled, 'image/')
 path_tile_label = os.path.join(path_tiled, 'label/')
+
+# Output file
+file_output = os.path.join(path_merged_prediction, 'output.tif')
 
 # Logging output paths
 logger.info('path_image : ' + path_image)
@@ -94,6 +98,7 @@ logger.info('path_tiled : ' + path_tiled)
 logger.info('path_predict : ' + path_predict)
 logger.info('path_tile_image : ' + path_tile_image)
 logger.info('path_tile_label : ' + path_tile_label)
+logger.info('Tile image path is %s' % (path_merged_prediction))
 
 # Creating directory
 checkdir(path_tile_image)
@@ -101,6 +106,7 @@ checkdir(path_tile_label)
 checkdir(path_predict)
 checkdir(path_tiled)
 checkdir(path_data)
+checkdir(path_merged_prediction)
 
 # load all the training images
 train_set = io.train_data()
@@ -137,7 +143,6 @@ logger.info('percent_overlap : ' + str(percent_overlap))
 
 # Listing images
 train_set.list_data()
-
 part = len(train_set.image_part_list)
 print('Number of parts : %s' % (str(part)))
 for k in range(part):
@@ -196,12 +201,13 @@ for k in range(part):
     predict_result = model.predict(
         train_image, batch_size=16, verbose=1)  # , steps=None)
 
+    predict_image = []
     for i in range(predict_result.shape[0]):
         # im = train_images[i]
         lb = predict_result[i, :, :, :]
         lb = np.round(lb, decimals=0)
         im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
-
+        predict_image.append(im_path)
         io.write_tif(im_path, lb*255, data['geotransform']
                      [i], data['geoprojection'][i], data['size'][i])
     #    cv2.imwrite(im_path,lb*255)
@@ -217,7 +223,8 @@ for k in range(part):
     #     srcNodata=-9999, VRTNodata=-9999))
 
 # Merging all the tif datasets
-io.merge_tile(path_merged_prediction, data['name'])
+logger.info('Merging tiled dataset')
+io.merge_tile(file_output, predict_image)
 
 # Saving to accuracy.json
 io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))

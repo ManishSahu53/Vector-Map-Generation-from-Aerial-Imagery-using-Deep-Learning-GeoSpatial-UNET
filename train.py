@@ -339,7 +339,7 @@ for k in range(part):
         timing['loop_%s_%s' % (str(k), str(j))] = end_loop - st_loop
         io.tojson(timing, os.path.join(result_lo, 'Timing.json'))
 
-end_time = time.time() - st_time()
+end_time = time.time() - st_time
 timing['Total Time'] = str(end_time)
 
 # Saving to JSON
