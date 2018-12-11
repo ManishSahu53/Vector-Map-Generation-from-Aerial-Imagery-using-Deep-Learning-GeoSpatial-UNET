@@ -59,6 +59,11 @@ parser.add_argument('-op', '--overlap', type=int,
                     default=0,
                     required=False)
 
+parser.add_argument('-f', '--format', type=str,
+                    help=' Specify the output format of the results. Available options are shp, geojson, kml. [Default] = shp',
+                    default='shp',
+                    required=False)
+
 # Parsing arguments
 args = parser.parse_args()
 path_data = args.data
@@ -69,7 +74,7 @@ grid_size = args.grid_size
 max_num_cpu = args.max_cpu
 max_num_gpu = args.max_gpu
 percent_overlap = args.overlap
-
+output_format = args.format
 
 logger.info('percent_overlap : ' + str(percent_overlap))
 st_time = time.time()
@@ -176,15 +181,23 @@ for k in range(part):
 
 timing['Processing'] = time.time() - st_time
 
-merging_time = time.time()
 
 # Merging tiled dataset to single tif
+merging_time = time.time()
 logger.info('Merging and compressing %s tiled dataset. This may take a while' % (
     str(train_set.count)))
 io.merge_tile(file_output, predict_image)
 
 # merging completed
 timing['Merging'] = time.time()-merging_time
+
+# Converting raster to Vector
+vectorization_time = time.time()
+logging.info('Converting Raster to vector')
+io.raster2vector(file_output, os.path.dirname(file_output), output_format)
+
+# Vectorization completed
+timing['vectorization'] = time.time()-vectorization_time
 
 # Saving to JSON
 io.tojson(timing, os.path.join(path_result, 'Timing.json'))

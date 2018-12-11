@@ -8,6 +8,8 @@ from src.gridding import gridding
 from src.bf_grid import bf_grid
 import math
 import json
+import ogr
+import osr
 
 
 class train_data():
@@ -203,3 +205,59 @@ def merge_tile(path_output, list_tif):
 
     # Success
     print('Successfully saved to %s' % (path_output))
+
+
+# Converting raster to vector
+def raster2vector(path_raster, path_vector, output_format):
+    if output_format.lower() == 'kml':
+        format = 'KML'
+        ext = '.kml'
+    elif output_format.lower() == 'geojson':
+        format = 'Geojson'
+        ext = '.json'
+    elif output_format.lower() == 'shp':
+        format = 'ESRI Shapefile'
+        ext = '.shp'
+    else:
+        format = 'ESRI Shapefile'
+        ext = '.shp'
+
+    # Generate exceptions
+    gdal.UseExceptions()
+
+    src_ds = gdal.Open(path_raster)
+    num_band = src_ds.RasterCount
+
+    for i in range(1, num_band+1):
+        if src_ds is None:
+            print('Unable to open %s' % src_fileName)
+            sys.exit(1)
+
+        srcband = src_ds.GetRasterBand(i)
+        maskband = srcband.GetMaskBand()
+
+        dst_layername = os.path.join(
+            path_vector, os.path.splitext(os.path.basename(path_raster))[0] + '_b' + str(i) + ext)
+        dst_fieldname = 'value'
+
+        drv = ogr.GetDriverByName(format)
+
+        # Saving vectors by individual bands
+        dst_ds = drv.CreateDataSource(dst_layername)
+
+        source_srs = osr.SpatialReference()
+        source_srs.ImportFromWkt(src_ds.GetProjectionRef())
+
+        dst_layer = dst_ds.GetLayerByName(dst_layername)
+        dst_layer = dst_ds.CreateLayer(
+            dst_layername, geom_type=ogr.wkbPolygon, srs=source_srs)
+
+        fd = ogr.FieldDefn(dst_fieldname, ogr.OFTInteger)
+        dst_layer.CreateField(fd)
+        dst_field = 0
+        gdal.Polygonize(srcband, maskband, dst_layer, dst_field, callback=None)
+        srcband = None
+        src_ds = None
+        dst_ds = None
+        mask_ds = None
+        print('Vectort successfully converted to %s' % (dst_layername))

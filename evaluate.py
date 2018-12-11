@@ -226,6 +226,11 @@ for k in range(part):
 logger.info('Merging tiled dataset')
 io.merge_tile(file_output, predict_image)
 
+# Converting raster to Vector
+logging.info('Converting Raster to vector')
+io.raster2vector(file_output, os.path.dirname(file_output), output_format)
+
+
 # Saving to accuracy.json
 io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
 logger.info('Completed')
