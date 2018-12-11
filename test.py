@@ -12,6 +12,7 @@ import time
 import argparse
 import logging
 from src.io import checkdir
+from src import postprocess
 import gdal
 
 # Setup logging
@@ -195,6 +196,9 @@ timing['Merging'] = time.time()-merging_time
 vectorization_time = time.time()
 logging.info('Converting Raster to vector')
 io.raster2vector(file_output, os.path.dirname(file_output), output_format)
+
+# Post Processing shp to axis aligned bounding box
+postprocess.aabbox(os.path.dirname(file_output), output_format)
 
 # Vectorization completed
 timing['vectorization'] = time.time()-vectorization_time

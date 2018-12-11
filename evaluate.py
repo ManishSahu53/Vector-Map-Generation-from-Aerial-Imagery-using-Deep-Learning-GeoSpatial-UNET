@@ -12,6 +12,7 @@ import time
 import argparse
 import logging
 from src.io import checkdir
+from src import postprocess
 import gdal
 
 # Setup logging
@@ -230,6 +231,8 @@ io.merge_tile(file_output, predict_image)
 logging.info('Converting Raster to vector')
 io.raster2vector(file_output, os.path.dirname(file_output), output_format)
 
+# Post Processing shp to axis aligned bounding box
+postprocess.aabbox(os.path.dirname(file_output), output_format)
 
 # Saving to accuracy.json
 io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
