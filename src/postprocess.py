@@ -8,6 +8,9 @@ from shapely.geometry import mapping, Polygon
 from shapely.geometry import MultiPolygon
 import os
 from pyproj import Proj, transform
+import cv2
+from src import io
+from scipy.ndimage.interpolation import rotate
 
 
 # Mininum bounding box/ axis aligned bounding box
@@ -19,7 +22,6 @@ def minimum_bounding_rectangle(points):
     :param points: an nx2 matrix of coordinates
     :rval: an nx2 matrix of coordinates
     """
-    from scipy.ndimage.interpolation import rotate
     pi2 = np.pi/2.
 
     # get the convex hull for the points
@@ -78,9 +80,16 @@ def minimum_bounding_rectangle(points):
     return rval
 
 
+# Calculating area of polygon
+def polygon_area(x, y):
+    correction = x[-1] * y[0] - y[-1] * x[0]
+    main_area = np.dot(x[:-1], y[1:]) - np.dot(y[:-1], x[1:])
+    return round(0.5*np.abs(main_area + correction), 2)
+
+
+# Calculating area of bounding box
 def aabbox(path_shp):
-    path_output = os.path.join(os.path.dirname(
-        path_shp), os.path.splitext(path_shp)[0] + '_bbox.shp')
+    path_output = os.path.join(os.path.splitext(path_shp)[0] + '_bbox.shp')
 
     sf = shapefile.Reader(path_shp)
 
@@ -93,17 +102,17 @@ def aabbox(path_shp):
     shapes = sf.shapes()
     num_shp = len(shapes)
     poly = []
+    area = []
 
     # Getting records
     rec = sf.records()
 
     for n in range(num_shp):
-        if rec[n][0] == 0:  # Removing '0' background value
-            continue
-        else:
+        if rec[n][0] == 255:  # Removing '0' background value
             coord = np.asarray(shapes[n].points)
             bbox = np.asarray(minimum_bounding_rectangle(coord))
-            b = np.append(bbox[j], [bbox[j][0]], axis=0)
+            area.append(polygon_area(bbox[:, 0], bbox[:, 1]))
+            b = np.append(bbox, [bbox[0]], axis=0)
             poly.append(Polygon(b))
 
     schema = {
@@ -121,3 +130,20 @@ def aabbox(path_shp):
                 'properties': {'id': i,
                                'Area': area[i]},
             })
+
+
+# Image erosion (N filter) and dilation (N-1 Filter)
+def erosion(path_image, filter):
+    path_output = os.path.join(os.path.splitext(path_image)[
+                               0] + '_er' + os.path.splitext(path_image)[1])
+    erode_kernel = np.ones((filter, filter), np.uint8)
+    geotransform, geoprojection, size, arr = io.read_tif(path_image)
+    # Image erosion
+    erode = cv2.erode(arr, erode_kernel)
+
+    # Image dilation
+    dilate_kernel = np.ones((filter-1, filter-1), np.uint8)
+    dilate = cv2.dilate(erode, dilate_kernel)
+
+    io.write_tif(path_output, dilate, geotransform, geoprojection, size)
+    return path_output

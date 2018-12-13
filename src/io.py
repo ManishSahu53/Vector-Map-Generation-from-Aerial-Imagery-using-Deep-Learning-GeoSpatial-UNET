@@ -93,8 +93,8 @@ def get_label(label_list, image_size):
     for i in range(len(label_list)):
         if i % 500 == 0:
             print('Reading %s, %s' % (str(i), os.path.basename(label_list[i])))
-        label.append(cv2.resize(cv2.imread(os.path.abspath(
-            label_list[i]), 0), (image_size, image_size)))
+        gt, gp, s, lb = read_tif(os.path.abspath(label_list[i]))
+        label.append(cv2.resize(lb, (image_size, image_size)))
 
     return np.array(label)
 
@@ -109,7 +109,7 @@ def get_geodata(image_list):
 
     # Storing geo-referencing information
     for i in range(len(image_list)):
-        geotransform, geoprojection, size = read_tif(image_list[i])
+        geotransform, geoprojection, size, _ = read_tif(image_list[i])
         geotransform_list.append(geotransform)
         geoprojection_list.append(geoprojection)
         name_list.append(os.path.basename(image_list[i]))
@@ -124,27 +124,27 @@ def get_geodata(image_list):
 
 
 # Reading raster dataset
-def read_tif(tif_file):
+def read_tif(path_tif):
     #    array = cv2.imread(tif_file)
     #    driver = gdal.GetDriverByName("GTiff")
-    ds = gdal.Open(tif_file)
+    ds = gdal.Open(path_tif)
     band = ds.GetRasterBand(1)
     arr = band.ReadAsArray()
     size = arr.shape
     geotransform = ds.GetGeoTransform()
     geoprojection = ds.GetProjection()
-    return geotransform, geoprojection, (size[1], size[0])
+    return geotransform, geoprojection, (size[1], size[0]), arr
 
 
 # Writing raster dataset
-def write_tif(tif_file, array, geotransform, geoprojection, size):
+def write_tif(path_tif, array, geotransform, geoprojection, size):
     array = cv2.resize(array, size)
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(tif_file, size[0], size[1], 1)
+    outdata = driver.Create(path_tif, size[0], size[1], 1)
     outdata.SetGeoTransform(geotransform)  # sets same geotransform as input
     outdata.SetProjection(geoprojection)  # sets same projection as input
     outdata.GetRasterBand(1).WriteArray(array)
-#    outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want these values transparent
+    # outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want these values transparent
     outdata.FlushCache()  # saves to disk!!
 
 
@@ -260,4 +260,5 @@ def raster2vector(path_raster, path_vector, output_format):
         src_ds = None
         dst_ds = None
         mask_ds = None
-        print('Vectort successfully converted to %s' % (dst_layername))
+        print('Vector successfully converted to %s' % (dst_layername))
+        return dst_layername

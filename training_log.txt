@@ -1,363 +1,131 @@
-[18:47:44] {train.py:136} INFO - Tiling Images
-[18:50:20] {train.py:136} INFO - Tiling Images
-[18:51:37] {train.py:136} INFO - Tiling Images
-[18:52:30] {train.py:136} INFO - Tiling Images
-[18:53:01] {train.py:136} INFO - Tiling Images
-[19:02:40] {train.py:145} INFO - Tiling Completed
-[19:02:40] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[19:02:40] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[19:02:40] {train.py:172} INFO - image_size:200
-[19:02:40] {train.py:173} INFO - max_num_cpu:50000.0
-[19:02:40] {train.py:174} INFO - max_num_gpu:6500.0
-[19:02:40] {train.py:175} INFO - num_image_channels:3
-[19:02:40] {train.py:176} INFO - num_label_channels:1
-[19:02:40] {train.py:177} INFO - num_epoch:200
-[19:03:08] {train.py:210} INFO - shape of train_image(38810, 200, 200, 3)
-[19:03:08] {train.py:213} INFO - shape of train_label(38810, 200, 200, 3)
-[19:03:08] {train.py:245} INFO - shape of Split train_image(6469, 200, 200, 3)
-[19:03:08] {train.py:248} INFO - shape of Split train_label(6469, 200, 200, 3)
-[20:08:59] {train.py:136} INFO - Tiling Images
-[20:30:40] {train.py:145} INFO - Tiling Completed
-[20:30:40] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[20:30:40] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[20:30:40] {train.py:172} INFO - image_size:200
-[20:30:40] {train.py:173} INFO - max_num_cpu:50000.0
-[20:30:40] {train.py:174} INFO - max_num_gpu:6500.0
-[20:30:40] {train.py:175} INFO - num_image_channels:3
-[20:30:40] {train.py:176} INFO - num_label_channels:1
-[20:30:40] {train.py:177} INFO - num_epoch:200
-[20:31:08] {train.py:210} INFO - shape of train_image(38810, 200, 200, 3)
-[20:31:08] {train.py:213} INFO - shape of train_label(38810, 200, 200, 3)
-[20:31:08] {train.py:245} INFO - shape of Split train_image(6469, 200, 200, 3)
-[20:31:08] {train.py:248} INFO - shape of Split train_label(6469, 200, 200, 3)
-[20:44:29] {train.py:136} INFO - Tiling Images
-[20:44:29] {train.py:145} INFO - Tiling Completed
-[20:44:29] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[20:44:29] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[20:44:29] {train.py:172} INFO - image_size:200
-[20:44:29] {train.py:173} INFO - max_num_cpu:50000.0
-[20:44:29] {train.py:174} INFO - max_num_gpu:6500.0
-[20:44:29] {train.py:175} INFO - num_image_channels:3
-[20:44:29] {train.py:176} INFO - num_label_channels:1
-[20:44:29] {train.py:177} INFO - num_epoch:200
-[20:45:00] {train.py:210} INFO - shape of train_image(38810, 200, 200, 3)
-[20:45:00] {train.py:213} INFO - shape of train_label(38810, 200, 200, 3)
-[20:45:00] {train.py:245} INFO - shape of Split train_image(6469, 200, 200, 3)
-[20:45:00] {train.py:248} INFO - shape of Split train_label(6469, 200, 200, 3)
-[20:54:09] {train.py:136} INFO - Tiling Images
-[20:54:42] {train.py:136} INFO - Tiling Images
-[21:01:45] {train.py:145} INFO - Tiling Completed
-[21:01:45] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:01:45] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:01:45] {train.py:172} INFO - image_size:200
-[21:01:45] {train.py:173} INFO - max_num_cpu:50000.0
-[21:01:45] {train.py:174} INFO - max_num_gpu:6500.0
-[21:01:45] {train.py:175} INFO - num_image_channels:3
-[21:01:45] {train.py:176} INFO - num_label_channels:1
-[21:01:45] {train.py:177} INFO - num_epoch:200
-[21:02:11] {train.py:210} INFO - shape of train_image(40060, 200, 200, 3)
-[21:02:11] {train.py:213} INFO - shape of train_label(40060, 200, 200, 3)
-[21:02:11] {train.py:245} INFO - shape of Split train_image(5723, 200, 200, 3)
-[21:02:11] {train.py:248} INFO - shape of Split train_label(5723, 200, 200, 3)
-[21:16:28] {train.py:136} INFO - Tiling Images
-[21:16:28] {train.py:145} INFO - Tiling Completed
-[21:16:28] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:16:28] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:16:28] {train.py:172} INFO - image_size:200
-[21:16:28] {train.py:173} INFO - max_num_cpu:50000.0
-[21:16:28] {train.py:174} INFO - max_num_gpu:6500.0
-[21:16:28] {train.py:175} INFO - num_image_channels:3
-[21:16:28] {train.py:176} INFO - num_label_channels:1
-[21:16:28] {train.py:177} INFO - num_epoch:200
-[21:17:44] {train.py:136} INFO - Tiling Images
-[21:17:44] {train.py:145} INFO - Tiling Completed
-[21:17:44] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:17:44] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:17:44] {train.py:172} INFO - image_size:200
-[21:17:44] {train.py:173} INFO - max_num_cpu:50000.0
-[21:17:44] {train.py:174} INFO - max_num_gpu:6500.0
-[21:17:44] {train.py:175} INFO - num_image_channels:3
-[21:17:44] {train.py:176} INFO - num_label_channels:1
-[21:17:44] {train.py:177} INFO - num_epoch:200
-[21:18:16] {train.py:136} INFO - Tiling Images
-[21:18:16] {train.py:145} INFO - Tiling Completed
-[21:18:16] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:18:16] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:18:16] {train.py:172} INFO - image_size:200
-[21:18:16] {train.py:173} INFO - max_num_cpu:50000.0
-[21:18:16] {train.py:174} INFO - max_num_gpu:6500.0
-[21:18:16] {train.py:175} INFO - num_image_channels:3
-[21:18:16] {train.py:176} INFO - num_label_channels:1
-[21:18:16] {train.py:177} INFO - num_epoch:200
-[21:19:01] {train.py:136} INFO - Tiling Images
-[21:19:01] {train.py:145} INFO - Tiling Completed
-[21:19:01] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:19:01] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:19:01] {train.py:172} INFO - image_size:200
-[21:19:01] {train.py:173} INFO - max_num_cpu:10000.0
-[21:19:01] {train.py:174} INFO - max_num_gpu:6500.0
-[21:19:01] {train.py:175} INFO - num_image_channels:3
-[21:19:01] {train.py:176} INFO - num_label_channels:1
-[21:19:01] {train.py:177} INFO - num_epoch:200
-[21:20:43] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[21:20:43] {train.py:213} INFO - shape of train_label(9244, 200, 200, 3)
-[21:20:43] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[21:20:43] {train.py:248} INFO - shape of Split train_label(4622, 200, 200, 3)
-[21:29:48] {train.py:136} INFO - Tiling Images
-[21:29:48] {train.py:145} INFO - Tiling Completed
-[21:29:48] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:29:48] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:29:48] {train.py:172} INFO - image_size:200
-[21:29:48] {train.py:173} INFO - max_num_cpu:10000.0
-[21:29:48] {train.py:174} INFO - max_num_gpu:6500.0
-[21:29:48] {train.py:175} INFO - num_image_channels:3
-[21:29:48] {train.py:176} INFO - num_label_channels:1
-[21:29:48] {train.py:177} INFO - num_epoch:200
-[21:29:58] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[21:29:58] {train.py:213} INFO - shape of train_label(9244, 200, 200, 3)
-[21:29:58] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[21:29:58] {train.py:248} INFO - shape of Split train_label(4622, 200, 200, 3)
-[21:31:08] {train.py:136} INFO - Tiling Images
-[21:31:08] {train.py:145} INFO - Tiling Completed
-[21:31:08] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:31:08] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:31:08] {train.py:172} INFO - image_size:200
-[21:31:08] {train.py:173} INFO - max_num_cpu:10000.0
-[21:31:08] {train.py:174} INFO - max_num_gpu:6500.0
-[21:31:08] {train.py:175} INFO - num_image_channels:3
-[21:31:08] {train.py:176} INFO - num_label_channels:1
-[21:31:08] {train.py:177} INFO - num_epoch:200
-[21:31:18] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[21:31:18] {train.py:213} INFO - shape of train_label(9244, 200, 200, 3)
-[21:31:18] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[21:31:18] {train.py:248} INFO - shape of Split train_label(4622, 200, 200, 3)
-[21:40:02] {train.py:136} INFO - Tiling Images
-[21:40:02] {train.py:145} INFO - Tiling Completed
-[21:40:02] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:40:02] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:40:02] {train.py:172} INFO - image_size:200
-[21:40:02] {train.py:173} INFO - max_num_cpu:10000.0
-[21:40:02] {train.py:174} INFO - max_num_gpu:6500.0
-[21:40:02] {train.py:175} INFO - num_image_channels:3
-[21:40:02] {train.py:176} INFO - num_label_channels:1
-[21:40:02] {train.py:177} INFO - num_epoch:200
-[21:41:01] {train.py:136} INFO - Tiling Images
-[21:41:01] {train.py:145} INFO - Tiling Completed
-[21:41:01] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:41:01] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:41:01] {train.py:172} INFO - image_size:200
-[21:41:01] {train.py:173} INFO - max_num_cpu:10000.0
-[21:41:01] {train.py:174} INFO - max_num_gpu:6500.0
-[21:41:01] {train.py:175} INFO - num_image_channels:3
-[21:41:01] {train.py:176} INFO - num_label_channels:1
-[21:41:01] {train.py:177} INFO - num_epoch:200
-[21:41:55] {train.py:136} INFO - Tiling Images
-[21:41:55] {train.py:145} INFO - Tiling Completed
-[21:41:55] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:41:55] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:41:55] {train.py:172} INFO - image_size:200
-[21:41:55] {train.py:173} INFO - max_num_cpu:10000.0
-[21:41:55] {train.py:174} INFO - max_num_gpu:6500.0
-[21:41:55] {train.py:175} INFO - num_image_channels:3
-[21:41:55] {train.py:176} INFO - num_label_channels:1
-[21:41:55] {train.py:177} INFO - num_epoch:200
-[21:42:25] {train.py:210} INFO - shape of train_image(9244, 200, 200)
-[21:42:25] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[21:42:25] {train.py:245} INFO - shape of Split train_image(4622, 200, 200)
-[21:42:25] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[21:43:47] {train.py:136} INFO - Tiling Images
-[21:43:47] {train.py:145} INFO - Tiling Completed
-[21:43:47] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:43:47] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:43:47] {train.py:172} INFO - image_size:200
-[21:43:47] {train.py:173} INFO - max_num_cpu:10000.0
-[21:43:47] {train.py:174} INFO - max_num_gpu:6500.0
-[21:43:47] {train.py:175} INFO - num_image_channels:3
-[21:43:47] {train.py:176} INFO - num_label_channels:1
-[21:43:47] {train.py:177} INFO - num_epoch:200
-[21:44:17] {train.py:210} INFO - shape of train_image(9244, 200, 200)
-[21:44:17] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[21:44:17] {train.py:245} INFO - shape of Split train_image(4622, 200, 200)
-[21:44:17] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[21:47:58] {train.py:136} INFO - Tiling Images
-[21:47:58] {train.py:145} INFO - Tiling Completed
-[21:47:58] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:47:58] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:47:58] {train.py:172} INFO - image_size:200
-[21:47:58] {train.py:173} INFO - max_num_cpu:10000.0
-[21:47:58] {train.py:174} INFO - max_num_gpu:6500.0
-[21:47:58] {train.py:175} INFO - num_image_channels:3
-[21:47:58] {train.py:176} INFO - num_label_channels:1
-[21:47:58] {train.py:177} INFO - num_epoch:200
-[21:48:07] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[21:48:07] {train.py:213} INFO - shape of train_label(9244, 200, 200, 3)
-[21:48:07] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[21:48:07] {train.py:248} INFO - shape of Split train_label(4622, 200, 200, 3)
-[21:54:01] {train.py:136} INFO - Tiling Images
-[21:54:01] {train.py:145} INFO - Tiling Completed
-[21:54:01] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:54:01] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:54:01] {train.py:172} INFO - image_size:200
-[21:54:01] {train.py:173} INFO - max_num_cpu:10000.0
-[21:54:01] {train.py:174} INFO - max_num_gpu:6500.0
-[21:54:01] {train.py:175} INFO - num_image_channels:3
-[21:54:01] {train.py:176} INFO - num_label_channels:1
-[21:54:01] {train.py:177} INFO - num_epoch:200
-[21:54:10] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[21:54:10] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[21:54:10] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[21:54:10] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[21:54:56] {train.py:136} INFO - Tiling Images
-[21:54:56] {train.py:145} INFO - Tiling Completed
-[21:54:56] {train.py:170} INFO - path_tile_image:data/train/result/tiled/image/
-[21:54:56] {train.py:171} INFO - path_tile_label:data/train/result/tiled/label/
-[21:54:56] {train.py:172} INFO - image_size:200
-[21:54:56] {train.py:173} INFO - max_num_cpu:10000.0
-[21:54:56] {train.py:174} INFO - max_num_gpu:6500.0
-[21:54:56] {train.py:175} INFO - num_image_channels:3
-[21:54:56] {train.py:176} INFO - num_label_channels:1
-[21:54:56] {train.py:177} INFO - num_epoch:200
-[21:55:05] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[21:55:05] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[21:55:05] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[21:55:05] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[21:55:06] {train.py:290} WARNING - Defining model
-[02:30:23] {train.py:323} INFO - Saving model
-[02:30:25] {train.py:328} INFO - Saving weights
-[07:02:16] {train.py:323} INFO - Saving model
-[07:02:17] {train.py:328} INFO - Saving weights
-[07:04:17] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[07:04:17] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[07:04:17] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[07:04:17] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[11:36:17] {train.py:323} INFO - Saving model
-[11:36:18] {train.py:328} INFO - Saving weights
-[16:09:59] {train.py:323} INFO - Saving model
-[16:10:00] {train.py:328} INFO - Saving weights
-[16:12:05] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[16:12:05] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[16:12:05] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[16:12:05] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[20:44:26] {train.py:323} INFO - Saving model
-[20:44:27] {train.py:328} INFO - Saving weights
-[01:16:49] {train.py:323} INFO - Saving model
-[01:16:50] {train.py:328} INFO - Saving weights
-[01:18:57] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[01:18:57] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[01:18:57] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[01:18:57] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[05:51:48] {train.py:323} INFO - Saving model
-[05:51:49] {train.py:328} INFO - Saving weights
-[10:26:13] {train.py:323} INFO - Saving model
-[10:26:14] {train.py:328} INFO - Saving weights
-[10:30:21] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[10:30:21] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[10:30:21] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[10:30:21] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[15:11:52] {train.py:323} INFO - Saving model
-[15:11:54] {train.py:328} INFO - Saving weights
-[19:50:24] {train.py:323} INFO - Saving model
-[19:50:25] {train.py:328} INFO - Saving weights
-[19:54:40] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[19:54:40] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[19:54:40] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[19:54:40] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[00:29:34] {train.py:323} INFO - Saving model
-[00:29:35] {train.py:328} INFO - Saving weights
-[05:03:43] {train.py:323} INFO - Saving model
-[05:03:45] {train.py:328} INFO - Saving weights
-[05:07:36] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[05:07:36] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[05:07:36] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[05:07:36] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[09:42:09] {train.py:323} INFO - Saving model
-[09:42:11] {train.py:328} INFO - Saving weights
-[14:16:43] {train.py:323} INFO - Saving model
-[14:16:45] {train.py:328} INFO - Saving weights
-[14:20:41] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[14:20:41] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[14:20:41] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[14:20:41] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[18:55:23] {train.py:323} INFO - Saving model
-[18:55:25] {train.py:328} INFO - Saving weights
-[23:30:21] {train.py:323} INFO - Saving model
-[23:30:23] {train.py:328} INFO - Saving weights
-[23:34:17] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[23:34:17] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[23:34:17] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[23:34:17] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[04:09:34] {train.py:323} INFO - Saving model
-[04:09:36] {train.py:328} INFO - Saving weights
-[08:45:01] {train.py:323} INFO - Saving model
-[08:45:03] {train.py:328} INFO - Saving weights
-[08:48:48] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[08:48:48] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[08:48:48] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[08:48:48] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[13:24:23] {train.py:323} INFO - Saving model
-[13:24:26] {train.py:328} INFO - Saving weights
-[18:00:11] {train.py:323} INFO - Saving model
-[18:00:14] {train.py:328} INFO - Saving weights
-[18:04:06] {train.py:210} INFO - shape of train_image(9244, 200, 200, 3)
-[18:04:06] {train.py:213} INFO - shape of train_label(9244, 200, 200)
-[18:04:06] {train.py:245} INFO - shape of Split train_image(4622, 200, 200, 3)
-[18:04:06] {train.py:248} INFO - shape of Split train_label(4622, 200, 200)
-[22:40:14] {train.py:323} INFO - Saving model
-[22:40:17] {train.py:328} INFO - Saving weights
-[03:16:21] {train.py:323} INFO - Saving model
-[03:16:24] {train.py:328} INFO - Saving weights
-[03:20:11] {train.py:210} INFO - shape of train_image(9245, 200, 200, 3)
-[03:20:11] {train.py:213} INFO - shape of train_label(9245, 200, 200)
-[03:20:11] {train.py:245} INFO - shape of Split train_image(4623, 200, 200, 3)
-[03:20:11] {train.py:248} INFO - shape of Split train_label(4623, 200, 200)
-[12:52:32] {train.py:136} INFO - Tiling Images
-[12:58:40] {train.py:145} INFO - Tiling Completed
-[12:58:40] {train.py:170} INFO - path_tile_image:road/result/tiled/image/
-[12:58:40] {train.py:171} INFO - path_tile_label:road/result/tiled/label/
-[12:58:40] {train.py:172} INFO - image_size:200
-[12:58:40] {train.py:173} INFO - max_num_cpu:50000.0
-[12:58:40] {train.py:174} INFO - max_num_gpu:6500.0
-[12:58:40] {train.py:175} INFO - num_image_channels:3
-[12:58:40] {train.py:176} INFO - num_label_channels:1
-[12:58:40] {train.py:177} INFO - num_epoch:200
-[12:59:08] {train.py:210} INFO - shape of train_image(35456, 200, 200, 3)
-[12:59:08] {train.py:213} INFO - shape of train_label(35456, 200, 200, 3)
-[12:59:08] {train.py:245} INFO - shape of Split train_image(5910, 200, 200, 3)
-[12:59:08] {train.py:248} INFO - shape of Split train_label(5910, 200, 200, 3)
-[13:01:58] {train.py:136} INFO - Tiling Images
-[13:01:58] {train.py:145} INFO - Tiling Completed
-[13:01:58] {train.py:170} INFO - path_tile_image:road/result/tiled/image/
-[13:01:58] {train.py:171} INFO - path_tile_label:road/result/tiled/label/
-[13:01:58] {train.py:172} INFO - image_size:200
-[13:01:58] {train.py:173} INFO - max_num_cpu:50000.0
-[13:01:58] {train.py:174} INFO - max_num_gpu:6500.0
-[13:01:58] {train.py:175} INFO - num_image_channels:3
-[13:01:58] {train.py:176} INFO - num_label_channels:1
-[13:01:58] {train.py:177} INFO - num_epoch:200
-[13:02:18] {train.py:210} INFO - shape of train_image(35456, 200, 200, 3)
-[13:02:18] {train.py:213} INFO - shape of train_label(35456, 200, 200)
-[13:02:18] {train.py:245} INFO - shape of Split train_image(5910, 200, 200, 3)
-[13:02:18] {train.py:248} INFO - shape of Split train_label(5910, 200, 200)
-[13:02:20] {train.py:290} WARNING - Defining model
-[18:53:24] {train.py:323} INFO - Saving model
-[18:53:25] {train.py:328} INFO - Saving weights
-[00:42:47] {train.py:323} INFO - Saving model
-[00:42:47] {train.py:328} INFO - Saving weights
-[06:29:16] {train.py:323} INFO - Saving model
-[06:29:17] {train.py:328} INFO - Saving weights
-[12:15:58] {train.py:323} INFO - Saving model
-[12:15:59] {train.py:328} INFO - Saving weights
-[18:04:19] {train.py:323} INFO - Saving model
-[18:04:20] {train.py:328} INFO - Saving weights
-[23:51:30] {train.py:323} INFO - Saving model
-[23:51:31] {train.py:328} INFO - Saving weights
-[00:06:57] {train.py:210} INFO - shape of train_image(35456, 200, 200, 3)
-[00:06:57] {train.py:213} INFO - shape of train_label(35456, 200, 200)
-[00:06:57] {train.py:245} INFO - shape of Split train_image(5910, 200, 200, 3)
-[00:06:57] {train.py:248} INFO - shape of Split train_label(5910, 200, 200)
-[05:55:02] {train.py:323} INFO - Saving model
-[05:55:05] {train.py:328} INFO - Saving weights
-[11:42:59] {train.py:323} INFO - Saving model
-[11:43:00] {train.py:328} INFO - Saving weights
-[17:32:24] {train.py:323} INFO - Saving model
-[17:32:25] {train.py:328} INFO - Saving weights
+[18:48:48] {train.py:136} INFO - Tiling Images
+[18:49:17] {train.py:145} INFO - Tiling Completed
+[18:49:17] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[18:49:17] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[18:49:17] {train.py:172} INFO - image_size:200
+[18:49:17] {train.py:173} INFO - max_num_cpu:50000.0
+[18:49:17] {train.py:174} INFO - max_num_gpu:6500.0
+[18:49:17] {train.py:175} INFO - num_image_channels:3
+[18:49:17] {train.py:176} INFO - num_label_channels:1
+[18:49:17] {train.py:177} INFO - num_epoch:200
+[18:51:56] {train.py:136} INFO - Tiling Images
+[18:53:17] {train.py:145} INFO - Tiling Completed
+[18:53:17] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[18:53:17] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[18:53:17] {train.py:172} INFO - image_size:200
+[18:53:17] {train.py:173} INFO - max_num_cpu:50000.0
+[18:53:17] {train.py:174} INFO - max_num_gpu:6500.0
+[18:53:17] {train.py:175} INFO - num_image_channels:3
+[18:53:17] {train.py:176} INFO - num_label_channels:1
+[18:53:17] {train.py:177} INFO - num_epoch:200
+[18:54:17] {train.py:136} INFO - Tiling Images
+[18:54:17] {train.py:145} INFO - Tiling Completed
+[18:54:17] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[18:54:17] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[18:54:17] {train.py:172} INFO - image_size:200
+[18:54:17] {train.py:173} INFO - max_num_cpu:50000.0
+[18:54:17] {train.py:174} INFO - max_num_gpu:6500.0
+[18:54:17] {train.py:175} INFO - num_image_channels:3
+[18:54:17] {train.py:176} INFO - num_label_channels:1
+[18:54:17] {train.py:177} INFO - num_epoch:200
+[18:58:20] {train.py:136} INFO - Tiling Images
+[18:58:20] {train.py:145} INFO - Tiling Completed
+[18:58:20] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[18:58:20] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[18:58:20] {train.py:172} INFO - image_size:200
+[18:58:20] {train.py:173} INFO - max_num_cpu:50000.0
+[18:58:20] {train.py:174} INFO - max_num_gpu:6500.0
+[18:58:20] {train.py:175} INFO - num_image_channels:3
+[18:58:20] {train.py:176} INFO - num_label_channels:1
+[18:58:20] {train.py:177} INFO - num_epoch:200
+[18:59:32] {train.py:136} INFO - Tiling Images
+[18:59:32] {train.py:145} INFO - Tiling Completed
+[18:59:32] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[18:59:32] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[18:59:32] {train.py:172} INFO - image_size:200
+[18:59:32] {train.py:173} INFO - max_num_cpu:50000.0
+[18:59:32] {train.py:174} INFO - max_num_gpu:6500.0
+[18:59:32] {train.py:175} INFO - num_image_channels:3
+[18:59:32] {train.py:176} INFO - num_label_channels:1
+[18:59:32] {train.py:177} INFO - num_epoch:200
+[19:13:49] {train.py:136} INFO - Tiling Images
+[19:14:20] {train.py:145} INFO - Tiling Completed
+[19:14:20] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[19:14:20] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[19:14:20] {train.py:172} INFO - image_size:200
+[19:14:20] {train.py:173} INFO - max_num_cpu:50000.0
+[19:14:20] {train.py:174} INFO - max_num_gpu:6500.0
+[19:14:20] {train.py:175} INFO - num_image_channels:3
+[19:14:20] {train.py:176} INFO - num_label_channels:1
+[19:14:20] {train.py:177} INFO - num_epoch:200
+[19:18:54] {train.py:136} INFO - Tiling Images
+[19:19:00] {train.py:136} INFO - Tiling Images
+[19:19:00] {train.py:145} INFO - Tiling Completed
+[19:19:00] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[19:19:00] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[19:19:00] {train.py:172} INFO - image_size:200
+[19:19:00] {train.py:173} INFO - max_num_cpu:50000.0
+[19:19:00] {train.py:174} INFO - max_num_gpu:6500.0
+[19:19:00] {train.py:175} INFO - num_image_channels:3
+[19:19:00] {train.py:176} INFO - num_label_channels:1
+[19:19:00] {train.py:177} INFO - num_epoch:200
+[19:19:16] {train.py:136} INFO - Tiling Images
+[19:20:07] {train.py:145} INFO - Tiling Completed
+[19:20:07] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[19:20:07] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[19:20:07] {train.py:172} INFO - image_size:200
+[19:20:07] {train.py:173} INFO - max_num_cpu:50000.0
+[19:20:07] {train.py:174} INFO - max_num_gpu:6500.0
+[19:20:07] {train.py:175} INFO - num_image_channels:3
+[19:20:07] {train.py:176} INFO - num_label_channels:1
+[19:20:07] {train.py:177} INFO - num_epoch:200
+[19:20:30] {train.py:210} INFO - shape of train_image(10641, 200, 200, 3)
+[19:20:30] {train.py:213} INFO - shape of train_label(10641, 200, 200)
+[19:20:30] {train.py:245} INFO - shape of Split train_image(5321, 200, 200, 3)
+[19:20:30] {train.py:248} INFO - shape of Split train_label(5321, 200, 200)
+[19:20:32] {train.py:290} WARNING - Defining model
+[19:29:09] {train.py:136} INFO - Tiling Images
+[19:29:09] {train.py:145} INFO - Tiling Completed
+[19:29:09] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[19:29:09] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[19:29:09] {train.py:172} INFO - image_size:200
+[19:29:09] {train.py:173} INFO - max_num_cpu:50000.0
+[19:29:09] {train.py:174} INFO - max_num_gpu:6500.0
+[19:29:09] {train.py:175} INFO - num_image_channels:3
+[19:29:09] {train.py:176} INFO - num_label_channels:1
+[19:29:09] {train.py:177} INFO - num_epoch:200
+[19:29:30] {train.py:210} INFO - shape of train_image(10641, 200, 200, 3)
+[19:29:30] {train.py:213} INFO - shape of train_label(10641, 200, 200)
+[19:29:30] {train.py:245} INFO - shape of Split train_image(5321, 200, 200, 3)
+[19:29:30] {train.py:248} INFO - shape of Split train_label(5321, 200, 200)
+[19:29:31] {train.py:290} WARNING - Defining model
+[20:12:55] {train.py:136} INFO - Tiling Images
+[20:12:55] {train.py:145} INFO - Tiling Completed
+[20:12:55] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[20:12:55] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[20:12:55] {train.py:172} INFO - image_size:200
+[20:12:55] {train.py:173} INFO - max_num_cpu:50000.0
+[20:12:55] {train.py:174} INFO - max_num_gpu:6500.0
+[20:12:55] {train.py:175} INFO - num_image_channels:3
+[20:12:55] {train.py:176} INFO - num_label_channels:1
+[20:12:55] {train.py:177} INFO - num_epoch:200
+[20:16:21] {train.py:136} INFO - Tiling Images
+[20:16:21] {train.py:145} INFO - Tiling Completed
+[20:16:21] {train.py:170} INFO - path_tile_image:data/own/result/tiled/image/
+[20:16:21] {train.py:171} INFO - path_tile_label:data/own/result/tiled/label/
+[20:16:21] {train.py:172} INFO - image_size:200
+[20:16:21] {train.py:173} INFO - max_num_cpu:50000.0
+[20:16:21] {train.py:174} INFO - max_num_gpu:6500.0
+[20:16:21] {train.py:175} INFO - num_image_channels:3
+[20:16:21] {train.py:176} INFO - num_label_channels:1
+[20:16:21] {train.py:177} INFO - num_epoch:200
+[20:18:33] {train.py:210} INFO - shape of train_image(10641, 200, 200, 3)
+[20:18:33] {train.py:213} INFO - shape of train_label(10641, 200, 200)
+[20:18:33] {train.py:245} INFO - shape of Split train_image(5321, 200, 200, 3)
+[20:18:33] {train.py:248} INFO - shape of Split train_label(5321, 200, 200)
+[20:18:34] {train.py:290} WARNING - Defining model
+[01:30:29] {train.py:323} INFO - Saving model
+[01:30:31] {train.py:328} INFO - Saving weights
+[06:42:45] {train.py:323} INFO - Saving model
+[06:42:46] {train.py:328} INFO - Saving weights
+[06:42:46] {train.py:350} INFO - Completed

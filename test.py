@@ -10,14 +10,15 @@ import cv2
 import numpy as np
 import time
 import argparse
-import logging
+# import logging
 from src.io import checkdir
 from src import postprocess
 import gdal
 
 # Setup logging
-logger = log.get_logger('Testing')
-log.log2file('Testing')
+# logger = log.get_logger('testing')
+# logger.propagate = False
+# log.log2file('Testing')
 
 parser = argparse.ArgumentParser(
     description='See description below to see all available options')
@@ -32,7 +33,7 @@ parser.add_argument('-s', '--size', type=int,
                     required=False)
 
 parser.add_argument('-sg', '--skip_gridding', type=int,
-                    help='If gridding is already done then skip it. [Default] is No = 0',
+                    help='If gridding is already done then skip it. [Default] is 0 (No)',
                     default=0,
                     required=False)
 
@@ -65,6 +66,12 @@ parser.add_argument('-f', '--format', type=str,
                     default='shp',
                     required=False)
 
+parser.add_argument('-lf', '--linearfeature', type=int,
+                    help='If data is linear feature. Example in case of road and railways. [Defualt] is 0 (no)',
+                    default=0,
+                    required=False)
+
+
 # Parsing arguments
 args = parser.parse_args()
 path_data = args.data
@@ -76,12 +83,16 @@ max_num_cpu = args.max_cpu
 max_num_gpu = args.max_gpu
 percent_overlap = args.overlap
 output_format = args.format
+linear_feature = args.linearfeature
 
-logger.info('percent_overlap : ' + str(percent_overlap))
+print('percent_overlap : ' + str(percent_overlap))
 st_time = time.time()
 
 # Storing time of process here
 timing = {}
+
+# Filer for post processing
+filter = 3
 
 # input data
 path_image = os.path.join(path_data, 'image')
@@ -99,15 +110,15 @@ path_tile_image = os.path.join(path_tiled, 'image')
 file_output = os.path.join(path_merged_prediction, 'output.tif')
 
 # Logging output paths
-logger.info('Tile image path is %s' % (path_merged_prediction))
-logger.info('Tile image path is %s' % (path_tile_image))
-logger.info('Predict path is %s' % (path_predict))
-logger.info('Result path is %s' % (path_result))
-logger.info('Image path is %s' % (path_image))
+print('Tile image path is %s' % (path_merged_prediction))
+print('Tile image path is %s' % (path_tile_image))
+print('Predict path is %s' % (path_predict))
+print('Result path is %s' % (path_result))
+print('Image path is %s' % (path_image))
 
 
 print('Tiling Images ...')
-logger.info('Tiling Images..')
+print('Tiling Images..')
 
 # Creating directory
 checkdir(path_tile_image)
@@ -121,7 +132,7 @@ if skip_gridding == 0:
                              path_tile_image, percent_overlap)
 
 print('Tiling Completed')
-logger.info('Tiling Completed')
+print('Tiling Completed')
 
 
 # load all the training images
@@ -149,7 +160,7 @@ for k in range(part):
 
     # Printing type and number of imgaes and labels
     print("shape of train_image" + str(shape_train_image))
-    logger.info("shape of train_image" + str(shape_train_image))
+    print("shape of train_image" + str(shape_train_image))
 
     train_image = np.resize(train_image, [
                             shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
@@ -173,11 +184,11 @@ for k in range(part):
         # im = train_images[i]
         lb = predict_result[i, :, :, :]
         lb = np.round(lb, decimals=0)
-        im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
-        predict_image.append(im_path)
+        path_im = os.path.join(path_predict, os.path.basename(data['name'][i]))
+        predict_image.append(path_im)
 
         # Saving data to disk
-        io.write_tif(im_path, lb*255, data['geotransform']
+        io.write_tif(path_im, lb*255, data['geotransform']
                      [i], data['geoprojection'][i], data['size'][i])
 
 timing['Processing'] = time.time() - st_time
@@ -185,26 +196,33 @@ timing['Processing'] = time.time() - st_time
 
 # Merging tiled dataset to single tif
 merging_time = time.time()
-logger.info('Merging and compressing %s tiled dataset. This may take a while' % (
+print('Merging and compressing %s tiled dataset. This may take a while' % (
     str(train_set.count)))
 io.merge_tile(file_output, predict_image)
 
 # merging completed
 timing['Merging'] = time.time()-merging_time
 
+# Post Processing output image
+if linear_feature == 0:
+    print('Post Processing image')
+    file_output = postprocess.erosion(file_output, filter)
+
 # Converting raster to Vector
 vectorization_time = time.time()
-logging.info('Converting Raster to vector')
-io.raster2vector(file_output, os.path.dirname(file_output), output_format)
+print('Converting Raster to vector')
+path_r2v = io.raster2vector(
+    file_output, os.path.dirname(file_output), output_format)
 
 # Post Processing shp to axis aligned bounding box
-postprocess.aabbox(os.path.dirname(file_output), output_format)
-
-# Vectorization completed
-timing['vectorization'] = time.time()-vectorization_time
+if linear_feature == 0:
+    print('Post Processing bounding box')
+    postprocess.aabbox(path_r2v)
+    # Vectorization completed
+    timing['vectorization'] = time.time()-vectorization_time
 
 # Saving to JSON
 io.tojson(timing, os.path.join(path_result, 'Timing.json'))
 
-logger.info('Completed')
+print('Process Completed')
 sys.exit()
