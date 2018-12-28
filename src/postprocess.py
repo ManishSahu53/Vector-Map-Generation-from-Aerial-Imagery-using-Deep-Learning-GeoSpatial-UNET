@@ -11,6 +11,8 @@ from pyproj import Proj, transform
 import cv2
 from src import io
 from scipy.ndimage.interpolation import rotate
+# from skimage.morphology import skeletonize as skt
+from skimage.morphology import medial_axis
 
 
 # Mininum bounding box/ axis aligned bounding box
@@ -146,4 +148,21 @@ def erosion(path_image, filter):
     dilate = cv2.dilate(erode, dilate_kernel)
 
     io.write_tif(path_output, dilate, geotransform, geoprojection, size)
+    return path_output
+
+
+# Skeletonize raster dataset
+def skeletonize(path_image):
+    filter = 5
+    path_output = os.path.join(os.path.splitext(path_image)[
+                               0] + '_skt' + os.path.splitext(path_image)[1])
+    geotransform, geoprojection, size, arr = io.read_tif(path_image)
+    """Array input must be binary
+    Output array is also binary
+    """
+    arr[arr > 0] = 1
+    dilate_kernel = np.ones((filter, filter), np.uint8)
+    arr = cv2.dilate(arr, dilate_kernel)
+    skeleton = skt(arr)
+    io.write_tif(path_output, skeleton*255, geotransform, geoprojection, size)
     return path_output

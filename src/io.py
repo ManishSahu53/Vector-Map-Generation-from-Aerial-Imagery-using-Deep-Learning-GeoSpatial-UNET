@@ -140,7 +140,7 @@ def read_tif(path_tif):
 def write_tif(path_tif, array, geotransform, geoprojection, size):
     array = cv2.resize(array, size)
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(path_tif, size[0], size[1], 1)
+    outdata = driver.Create(path_tif, size[0], size[1], 1, gdal.GDT_Float32)
     outdata.SetGeoTransform(geotransform)  # sets same geotransform as input
     outdata.SetProjection(geoprojection)  # sets same projection as input
     outdata.GetRasterBand(1).WriteArray(array)

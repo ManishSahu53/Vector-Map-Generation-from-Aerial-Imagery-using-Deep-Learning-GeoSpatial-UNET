@@ -151,7 +151,6 @@ train_set.list_data()
 part = len(train_set.image_part_list)
 
 for k in range(part):
-
     # Loading the training image and labeled image
     train_image = io.get_image(
         train_set.image_part_list[k], train_set.image_size)
@@ -208,6 +207,10 @@ if linear_feature == 0:
     print('Post Processing image')
     file_output = postprocess.erosion(file_output, filter)
 
+elif linear_feature == 1:
+    print('Post Processing skeletonization')
+    _ = postprocess.skeletonize(file_output)
+
 # Converting raster to Vector
 vectorization_time = time.time()
 print('Converting Raster to vector')
@@ -220,6 +223,7 @@ if linear_feature == 0:
     postprocess.aabbox(path_r2v)
     # Vectorization completed
     timing['vectorization'] = time.time()-vectorization_time
+
 
 # Saving to JSON
 io.tojson(timing, os.path.join(path_result, 'Timing.json'))
