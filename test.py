@@ -8,7 +8,7 @@ from keras.models import Model
 from keras import backend as K
 import cv2
 import numpy as np
-import time
+import time as mtime
 import argparse
 # import logging
 from src.io import checkdir
@@ -86,10 +86,14 @@ output_format = args.format
 linear_feature = args.linearfeature
 
 print('percent_overlap : ' + str(percent_overlap))
-st_time = time.time()
+st_time = mtime.time()
 
 # Storing time of process here
 timing = {}
+
+# Current running process
+current_process = []
+current_process.append('initilization')
 
 # Filer for post processing
 filter = 3
@@ -118,7 +122,6 @@ print('Image path is %s' % (path_image))
 
 
 print('Tiling Images ...')
-print('Tiling Images..')
 
 # Creating directory
 checkdir(path_tile_image)
@@ -128,10 +131,11 @@ checkdir(path_data)
 checkdir(path_merged_prediction)
 
 if skip_gridding == 0:
+    time = mtime.time()
+    current_process.append('tiling')
     tile_image = io.checkres(path_image, grid_size,
                              path_tile_image, percent_overlap)
-
-print('Tiling Completed')
+    timing[current_process[-1]] = mtime.time() - time
 print('Tiling Completed')
 
 
@@ -152,13 +156,13 @@ part = len(train_set.image_part_list)
 
 for k in range(part):
     # Loading the training image and labeled image
+    current_process.append('loading_images')
     train_image = io.get_image(
         train_set.image_part_list[k], train_set.image_size)
 
     shape_train_image = train_image.shape
 
     # Printing type and number of imgaes and labels
-    print("shape of train_image" + str(shape_train_image))
     print("shape of train_image" + str(shape_train_image))
 
     train_image = np.resize(train_image, [
@@ -173,10 +177,12 @@ for k in range(part):
     # loading model from model file not weights file
     model = load_model(path_model, custom_objects={
         'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
+    current_process.append('loading_model')
 
     # prediction model
     predict_result = model.predict(
         train_image, batch_size=16, verbose=1)  # , steps=None)
+    current_process.append('predicting')
 
     predict_image = []
     for i in range(predict_result.shape[0]):
@@ -187,42 +193,91 @@ for k in range(part):
         predict_image.append(path_im)
 
         # Saving data to disk
+        current_process.append('saving_prediction')
         io.write_tif(path_im, lb*255, data['geotransform']
                      [i], data['geoprojection'][i], data['size'][i])
+        current_process.append('saving_prediction')
 
-timing['Processing'] = time.time() - st_time
+timing['Processing'] = mtime.time() - st_time
 
 
 # Merging tiled dataset to single tif
-merging_time = time.time()
+time = mtime.time()
 print('Merging and compressing %s tiled dataset. This may take a while' % (
     str(train_set.count)))
+current_process.append('merging')
 io.merge_tile(file_output, predict_image)
 
 # merging completed
-timing['Merging'] = time.time()-merging_time
+timing[current_process[-1]] = mtime.time() - time
 
 # Post Processing output image
 if linear_feature == 0:
-    print('Post Processing image')
-    file_output = postprocess.erosion(file_output, filter)
+
+    # Post processing erosion
+    print('Post Processing erosion')
+    current_process.append('erosion')
+    time = mtime.time()
+
+    path_erosion = os.path.join(os.path.splitext(file_output)[
+        0] + '_er' + os.path.splitext(file_output)[1])
+    file_output = postprocess.erosion(file_output, filter, path_erosion)
+
+    # Erosion completed
+    timing[current_process[-1]] = mtime.time() - time
+
+    # Watershed segmentation
+    neighbour = 4
+    current_process.append('watershed_segmentation')
+    time = mtime.time()
+    path_watershed = os.path.join(os.path.splitext(file_output)[
+        0] + '_waterseg' + os.path.splitext(file_output)[1])
+    file_output = postprocess.waterseg(file_output, neighbour, path_watershed)
+
+    # Watershed segmentation completed
+    timing[current_process[-1]] = mtime.time() - time
+
+    # Converting raster to Vector
+    time = mtime.time()
+    print('Converting Raster to vector')
+    current_process.append('vectorization')
+
+    path_r2v = io.raster2vector(
+        file_output, os.path.dirname(file_output), output_format)
+
+    # Vectorization completed
+    timing[current_process[-1]] = mtime.time() - time
+
+    # Shp to axis aligned bounding box
+    print('Post Processing bounding box')
+    current_process.append('aabbox')
+    time = mtime.time()
+    postprocess.aabbox(path_r2v)
+
+    # aabbox completed
+    timing[current_process[-1]] = mtime.time() - time
+
 
 elif linear_feature == 1:
     print('Post Processing skeletonization')
-    _ = postprocess.skeletonize(file_output)
+    current_process.append('skeletonization')
+    time = mtime.time()
 
-# Converting raster to Vector
-vectorization_time = time.time()
-print('Converting Raster to vector')
-path_r2v = io.raster2vector(
-    file_output, os.path.dirname(file_output), output_format)
+    path_skeleton = os.path.join(os.path.splitext(file_output)[
+        0] + '_skt' + os.path.splitext(file_output)[1])
+    _ = postprocess.skeletonize(file_output, path_skeleton)
 
-# Post Processing shp to axis aligned bounding box
-if linear_feature == 0:
-    print('Post Processing bounding box')
-    postprocess.aabbox(path_r2v)
+    # Skeletonization completed
+    timing[current_process[-1]] = mtime.time() - time
+
+    # Converting raster to Vector
+    time = mtime.time()
+    print('Converting Raster to vector')
+    path_r2v = io.raster2vector(
+        file_output, os.path.dirname(file_output), output_format)
+
     # Vectorization completed
-    timing['vectorization'] = time.time()-vectorization_time
+    timing[current_process[-1]] = mtime.time() - time
 
 
 # Saving to JSON

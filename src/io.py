@@ -128,8 +128,14 @@ def read_tif(path_tif):
     #    array = cv2.imread(tif_file)
     #    driver = gdal.GetDriverByName("GTiff")
     ds = gdal.Open(path_tif)
-    band = ds.GetRasterBand(1)
-    arr = band.ReadAsArray()
+    num_band = ds.RasterCount
+    col = ds.RasterXSize
+    row = ds.RasterYSize
+    array = np.zeros([row, col, num_band])
+    for i in range(num_band):
+        band = ds.GetRasterBand(i+1)
+        arr = band.ReadAsArray()
+        array[:, :, i] = arr
     size = arr.shape
     geotransform = ds.GetGeoTransform()
     geoprojection = ds.GetProjection()

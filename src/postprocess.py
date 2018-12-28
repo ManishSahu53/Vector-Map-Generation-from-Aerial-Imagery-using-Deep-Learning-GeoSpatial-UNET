@@ -10,9 +10,14 @@ import os
 from pyproj import Proj, transform
 import cv2
 from src import io
+
+# For Post Processing libraries
 from scipy.ndimage.interpolation import rotate
-# from skimage.morphology import skeletonize as skt
-from skimage.morphology import medial_axis
+from skimage.morphology import skeletonize as skt
+# from skimage.morphology import medial_axis
+from skimage.feature import peak_local_max
+from skimage.morphology import watershed, remove_small_objects
+from scipy import ndimage as ndi
 
 
 # Mininum bounding box/ axis aligned bounding box
@@ -110,7 +115,7 @@ def aabbox(path_shp):
     rec = sf.records()
 
     for n in range(num_shp):
-        if rec[n][0] == 255:  # Removing '0' background value
+        if rec[n][0] > 0:  # Removing '0' background value
             coord = np.asarray(shapes[n].points)
             bbox = np.asarray(minimum_bounding_rectangle(coord))
             area.append(polygon_area(bbox[:, 0], bbox[:, 1]))
@@ -134,28 +139,34 @@ def aabbox(path_shp):
             })
 
 
-# Image erosion (N filter) and dilation (N-1 Filter)
-def erosion(path_image, filter):
-    path_output = os.path.join(os.path.splitext(path_image)[
-                               0] + '_er' + os.path.splitext(path_image)[1])
+# Image erosion (N filter) and dilation (N Filter)
+def erosion(path_image, filter, path_output):
+
     erode_kernel = np.ones((filter, filter), np.uint8)
     geotransform, geoprojection, size, arr = io.read_tif(path_image)
     # Image erosion
     erode = cv2.erode(arr, erode_kernel)
 
     # Image dilation
-    dilate_kernel = np.ones((filter-1, filter-1), np.uint8)
+    dilate_kernel = np.ones((filter, filter), np.uint8)
     dilate = cv2.dilate(erode, dilate_kernel)
 
-    io.write_tif(path_output, dilate, geotransform, geoprojection, size)
+    # removing smaller pixels
+    cell_size = geotransform[1]
+    min_area = 9  # 9 sq.metres
+    num_pixel = int(min_area/cell_size*cell_size)
+    dilate = np.asarray(dilate, dtype=int)
+    cleaned = remove_small_objects(dilate, min_size=num_pixel, connectivity=2)
+
+    print('Saving erosion to %s' % (path_output))
+    io.write_tif(path_output, cleaned, geotransform, geoprojection, size)
     return path_output
 
 
 # Skeletonize raster dataset
-def skeletonize(path_image):
+def skeletonize(path_image, path_output):
     filter = 5
-    path_output = os.path.join(os.path.splitext(path_image)[
-                               0] + '_skt' + os.path.splitext(path_image)[1])
+
     geotransform, geoprojection, size, arr = io.read_tif(path_image)
     """Array input must be binary
     Output array is also binary
@@ -164,5 +175,39 @@ def skeletonize(path_image):
     dilate_kernel = np.ones((filter, filter), np.uint8)
     arr = cv2.dilate(arr, dilate_kernel)
     skeleton = skt(arr)
+
+    print('Saving skeleton to %s' % (path_output))
     io.write_tif(path_output, skeleton*255, geotransform, geoprojection, size)
+    return path_output
+
+
+# Watershed Segmentation
+def waterseg(path_image, filter, path_output):
+
+    geotransform, geoprojection, size, arr = io.read_tif(path_image)
+    """ Minimum distance between two objects is 5m. 
+    distance = 5/cell_size
+    """
+    distance = int(7.5/geotransform[1])
+    D = ndi.distance_transform_edt(arr)
+    localMax = peak_local_max(
+        D, indices=False, min_distance=distance, labels=arr)
+
+    # 4 Connected pixels, we can also use 8 connected pixels
+    if int(filter) == 4:
+        filter = [[0, 1, 0],
+                  [1, 1, 1],
+                  [0, 1, 0]]
+    elif int(filter) == 8:
+        filter = [[1, 1, 1],
+                  [1, 1, 1],
+                  [1, 1, 1]]
+
+    filter = np.asarray(filter)
+
+    # markers = ndimage.label(localMax, structure=filter)[0]
+    markers = ndi.label(localMax, structure=filter)[0]
+    labels = watershed(-D, markers, mask=arr)
+    print('Saving watershed segmentation to %s' % (path_output))
+    io.write_tif(path_output, labels, geotransform, geoprojection, size)
     return path_output
