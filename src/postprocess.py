@@ -10,6 +10,9 @@ import os
 from pyproj import Proj, transform
 import cv2
 from src import io
+import gdal
+import ogr
+import osr
 
 # For Post Processing libraries
 from scipy.ndimage.interpolation import rotate
@@ -95,8 +98,7 @@ def polygon_area(x, y):
 
 
 # Calculating area of bounding box
-def aabbox(path_shp):
-    path_output = os.path.join(os.path.splitext(path_shp)[0] + '_bbox.shp')
+def aabbox(path_shp, path_output):
 
     sf = shapefile.Reader(path_shp)
 
@@ -211,3 +213,69 @@ def waterseg(path_image, filter, path_output):
     print('Saving watershed segmentation to %s' % (path_output))
     io.write_tif(path_output, labels, geotransform, geoprojection, size)
     return path_output
+
+
+# Calculating area of bounding box
+def simplify_polygon(path_shp, para, path_output):
+    gdal.UseExceptions()
+    ogr.UseExceptions()
+
+    def addPolygon(simplePolygon, dst_layer, index):
+        featureDefn = dst_layer.GetLayerDefn()
+        polygon = ogr.CreateGeometryFromWkb(simplePolygon)
+        dst_feat = ogr.Feature(featureDefn)
+        dst_feat.SetGeometry(polygon)
+
+        geom = dst_feat.GetGeometryRef()
+        dst_feat.SetField('id', index)
+        dst_feat.SetField('area', geom.Area())
+
+        dst_layer.CreateFeature(dst_feat)
+        dst_layer.SyncToDisk()
+
+    def multipoly2poly(src_lyr, para, dst_layer):
+        count = 0
+        for src_feat in src_lyr:
+            if src_feat.GetField(0) > 0:
+                count = count + 1
+                geom = src_feat.GetGeometryRef()
+                if geom.GetGeometryName() == 'MULTIPOLYGON':
+                    for geom_part in geom:
+                        x = geom_part.SimplifyPreserveTopology(para)
+                        addPolygon(x.ExportToWkb(), dst_layer, count)
+                else:
+                    x = geom.SimplifyPreserveTopology(para)
+                    addPolygon(x.ExportToWkb(), dst_layer, count)
+            else:
+                continue
+
+    # Reading source shp
+    drv = ogr.GetDriverByName('ESRI Shapefile')
+    src_ds = drv.Open(path_shp, 0)
+    src_lyr = src_ds.GetLayer()
+
+    # Reading source coordinate system
+    src_srs = osr.SpatialReference()
+
+    # from Layer
+    spatialRef = src_lyr.GetSpatialRef()
+    # from Geometry
+    feature = src_lyr.GetNextFeature()
+    geom = feature.GetGeometryRef()
+    spatialRef = geom.GetSpatialReference()
+    src_srs.ImportFromWkt(spatialRef.ExportToWkt())
+
+    # Creating destination shp
+    dst_ds = drv.CreateDataSource(path_output)
+    dst_layer = dst_ds.GetLayerByName(path_output)
+    dst_layer = dst_ds.CreateLayer(
+        path_output, geom_type=ogr.wkbPolygon, srs=src_srs)
+
+    # Add an ID and area field
+    idField = ogr.FieldDefn('id', ogr.OFTInteger)
+    areaField = ogr.FieldDefn('area', ogr.OFTReal)
+    dst_layer.CreateField(idField)
+    dst_layer.CreateField(areaField)
+
+    # Simplification of polygons
+    multipoly2poly(src_lyr, para, dst_layer)

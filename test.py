@@ -97,6 +97,7 @@ current_process.append('initilization')
 
 # Filer for post processing
 filter = 3
+simplify_para = 0.7  # in metres
 
 # input data
 path_image = os.path.join(path_data, 'image')
@@ -219,8 +220,7 @@ if linear_feature == 0:
     current_process.append('erosion')
     time = mtime.time()
 
-    path_erosion = os.path.join(os.path.splitext(file_output)[
-        0] + '_er' + os.path.splitext(file_output)[1])
+    path_erosion = os.path.join(path_merged_prediction, 'erosion.tif')
     file_output = postprocess.erosion(file_output, filter, path_erosion)
 
     # Erosion completed
@@ -228,10 +228,10 @@ if linear_feature == 0:
 
     # Watershed segmentation
     neighbour = 4
+    print('Post Processing watershed_segmentation')
     current_process.append('watershed_segmentation')
     time = mtime.time()
-    path_watershed = os.path.join(os.path.splitext(file_output)[
-        0] + '_waterseg' + os.path.splitext(file_output)[1])
+    path_watershed = os.path.join(path_merged_prediction, 'watershed.tif')
     file_output = postprocess.waterseg(file_output, neighbour, path_watershed)
 
     # Watershed segmentation completed
@@ -248,11 +248,17 @@ if linear_feature == 0:
     # Vectorization completed
     timing[current_process[-1]] = mtime.time() - time
 
+    # Simplification of polygons
+    path_simplify = os.path.join(path_merged_prediction, 'simplify.shp')
+    postprocess.simplify_polygon(path_r2v, simplify_para, path_simplify)
+
     # Shp to axis aligned bounding box
     print('Post Processing bounding box')
     current_process.append('aabbox')
     time = mtime.time()
-    postprocess.aabbox(path_r2v)
+
+    path_bbox = os.path.join(path_merged_prediction, 'bbox.shp')
+    postprocess.aabbox(path_r2v, path_bbox)
 
     # aabbox completed
     timing[current_process[-1]] = mtime.time() - time
@@ -263,8 +269,7 @@ elif linear_feature == 1:
     current_process.append('skeletonization')
     time = mtime.time()
 
-    path_skeleton = os.path.join(os.path.splitext(file_output)[
-        0] + '_skt' + os.path.splitext(file_output)[1])
+    path_skeleton = os.path.join(path_merged_prediction, 'skeleton.tif')
     _ = postprocess.skeletonize(file_output, path_skeleton)
 
     # Skeletonization completed
