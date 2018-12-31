@@ -1,6 +1,5 @@
 """ Defining loss functions"""
 import numpy as np
-from keras import backend as K
 
 """
 Multiclass loss
