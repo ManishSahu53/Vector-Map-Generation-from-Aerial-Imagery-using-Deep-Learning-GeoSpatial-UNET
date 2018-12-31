@@ -229,6 +229,7 @@ io.merge_tile(file_output, predict_image)
 
 # Converting raster to Vector
 logging.info('Converting Raster to vector')
+output_format = 'shp'
 io.raster2vector(file_output, os.path.dirname(file_output), output_format)
 
 # Post Processing shp to axis aligned bounding box

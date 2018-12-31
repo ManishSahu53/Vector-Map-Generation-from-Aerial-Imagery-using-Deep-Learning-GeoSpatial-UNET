@@ -139,7 +139,7 @@ def read_tif(path_tif):
     size = arr.shape
     geotransform = ds.GetGeoTransform()
     geoprojection = ds.GetProjection()
-    return geotransform, geoprojection, (size[1], size[0]), arr
+    return geotransform, geoprojection, (size[1], size[0]), array
 
 
 # Writing raster dataset

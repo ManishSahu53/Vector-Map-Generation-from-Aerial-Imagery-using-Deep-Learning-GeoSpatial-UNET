@@ -21,11 +21,25 @@ def jaccard_distance(y_true, y_pred):
 
 def dice_coef(y_true, y_pred, smooth=10.0):
     '''Average dice coefficient per batch.'''
-    axes = (1, 2, 3)
-    intersection = K.sum(y_true * y_pred, axis=axes)
-    summation = K.sum(y_true, axis=axes) + K.sum(y_pred, axis=axes)
+    dim_true = y_true.shape
+    dim_pred = y_pred.shape
 
-    return K.mean((2.0 * intersection + smooth) / (summation + smooth), axis=0)
+    if dim_true != dim_pred:
+        print('Dimension of GroundTruth and prediction does not match')
+        sys.exit()
+
+    else:
+        depth = len(dim_true)
+
+    if np.max(y_pred) > 1:
+        y_pred = y_pred / 255.0
+    if np.max(y_true) > 1:
+        y_true = y_true / 255.0
+
+    intersection = np.sum(np.multiply(y_true, y_pred))
+    summation = np.sum(y_true) + np.sum(y_pred)
+
+    return np.mean((2.0 * intersection + smooth) / (summation + smooth))
 
 
 def dice_coef_loss(y_true, y_pred):
@@ -34,7 +48,21 @@ def dice_coef_loss(y_true, y_pred):
 
 def jaccard_coef(y_true, y_pred, smooth=10.0):
     '''Average jaccard coefficient per batch.'''
-    axes = (1, 2, 3)
-    intersection = K.sum(y_true * y_pred, axis=axes)
-    union = K.sum(y_true, axis=axes) + K.sum(y_pred, axis=axes) - intersection
-    return K.mean((intersection + smooth) / (union + smooth), axis=0)
+    dim_true = y_true.shape
+    dim_pred = y_pred.shape
+
+    if dim_true != dim_pred:
+        print('Dimension of GroundTruth and prediction does not match')
+        sys.exit()
+
+    else:
+        depth = len(dim_true)
+
+    if np.max(y_pred) > 1:
+        y_pred = y_pred / 255.0
+    if np.max(y_true) > 1:
+        y_true = y_true / 255.0
+
+    intersection = np.sum(np.multiply(y_true, y_pred))
+    union = np.sum(y_true) + np.sum(y_pred) - intersection
+    return np.mean((intersection + smooth) / (union + smooth))
