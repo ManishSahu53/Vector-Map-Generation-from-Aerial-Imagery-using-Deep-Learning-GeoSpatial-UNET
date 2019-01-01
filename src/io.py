@@ -144,12 +144,26 @@ def read_tif(path_tif):
 
 # Writing raster dataset
 def write_tif(path_tif, array, geotransform, geoprojection, size):
-    array = cv2.resize(array, size)
+    dim_array = array.shape
+    if len(dim_array) > 2:
+        depth = dim_array[2]
+    else:
+        depth = 1
+
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(path_tif, size[0], size[1], 1, gdal.GDT_Float32)
-    outdata.SetGeoTransform(geotransform)  # sets same geotransform as input
+    outdata = driver.Create(
+        path_tif, size[0], size[1], depth, gdal.GDT_Float32)
+
+    # sets same geotransform as input
+    outdata.SetGeoTransform(geotransform)
     outdata.SetProjection(geoprojection)  # sets same projection as input
-    outdata.GetRasterBand(1).WriteArray(array)
+    for i in range(depth):
+        try:
+            arr = array[:, :, i]
+        except:
+            arr = array[:, :]
+        arr = cv2.resize(arr, size)
+        outdata.GetRasterBand(i+1).WriteArray(arr)
     # outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want these values transparent
     outdata.FlushCache()  # saves to disk!!
 

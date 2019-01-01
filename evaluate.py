@@ -162,7 +162,15 @@ for k in range(part):
                             shape_train_image[0], shape_train_image[1], shape_train_image[2], 3])
     train_label = np.resize(train_label, [
                             shape_train_label[0], shape_train_label[1], shape_train_label[2], 1])
-    print(train_label.shape)
+
+    train_lb = np.zeros(train_label.shape)
+    for i in range(shape_train_label[0]):
+        temp = train_label[i]
+        temp = temp[:, :, 0]
+        temp[temp == 255] = 1
+        train_lb[i, :, :, 0] = temp
+
+    train_label = train_lb
     # Printing type and number of imgaes and labels
     print("shape of train_image" + str(shape_train_image))
     print("shape of train_label" + str(shape_train_label))
@@ -198,44 +206,44 @@ for k in range(part):
     accuracy['Dice coefficient'] = eval_score[2]
     accuracy['Jacard Coefficient'] = eval_score[3]
 
-    # prediction model
-    predict_result = model.predict(
-        train_image, batch_size=16, verbose=1)  # , steps=None)
+#     # prediction model
+#     predict_result = model.predict(
+#         train_image, batch_size=16, verbose=1)  # , steps=None)
 
-    predict_image = []
-    for i in range(predict_result.shape[0]):
-        # im = train_images[i]
-        lb = predict_result[i, :, :, :]
-        lb = np.round(lb, decimals=0)
-        im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
-        predict_image.append(im_path)
-        io.write_tif(im_path, lb*255, data['geotransform']
-                     [i], data['geoprojection'][i], data['size'][i])
-    #    cv2.imwrite(im_path,lb*255)
+#     predict_image = []
+#     for i in range(predict_result.shape[0]):
+#         # im = train_images[i]
+#         lb = predict_result[i, :, :, :]
+#         lb = np.round(lb, decimals=0)
+#         im_path = os.path.join(path_predict, os.path.basename(data['name'][i]))
+#         predict_image.append(im_path)
+#         io.write_tif(im_path, lb*255, data['geotransform']
+#                      [i], data['geoprojection'][i], data['size'][i])
+#     #    cv2.imwrite(im_path,lb*255)
 
-    # merging = []
-    # output_vrt = os.path.join(path_data, 'merged.vrt')
-    # for root, dirs, files in os.walk(path_predict):
-    #     for file in files:
-    #         if ".tif" in file:
-    #             merging.append(file)
+#     # merging = []
+#     # output_vrt = os.path.join(path_data, 'merged.vrt')
+#     # for root, dirs, files in os.walk(path_predict):
+#     #     for file in files:
+#     #         if ".tif" in file:
+#     #             merging.append(file)
 
-    # gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
-    #     srcNodata=-9999, VRTNodata=-9999))
+#     # gdal.BuildVRT(output_vrt, merging, options=gdal.BuildVRTOptions(
+#     #     srcNodata=-9999, VRTNodata=-9999))
 
-# Merging all the tif datasets
-logger.info('Merging tiled dataset')
-io.merge_tile(file_output, predict_image)
+# # Merging all the tif datasets
+# logger.info('Merging tiled dataset')
+# io.merge_tile(file_output, predict_image)
 
-# Converting raster to Vector
-logging.info('Converting Raster to vector')
-output_format = 'shp'
-io.raster2vector(file_output, os.path.dirname(file_output), output_format)
+# # Converting raster to Vector
+# logging.info('Converting Raster to vector')
+# output_format = 'shp'
+# io.raster2vector(file_output, os.path.dirname(file_output), output_format)
 
-# Post Processing shp to axis aligned bounding box
-postprocess.aabbox(os.path.dirname(file_output), output_format)
+# # Post Processing shp to axis aligned bounding box
+# postprocess.aabbox(os.path.dirname(file_output), output_format)
 
-# Saving to accuracy.json
-io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
-logger.info('Completed')
-sys.exit()
+# # Saving to accuracy.json
+# io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
+# logger.info('Completed')
+# sys.exit()

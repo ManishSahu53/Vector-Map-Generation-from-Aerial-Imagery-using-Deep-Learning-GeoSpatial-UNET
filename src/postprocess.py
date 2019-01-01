@@ -186,30 +186,45 @@ def skeletonize(path_image, path_output):
 # Watershed Segmentation
 def waterseg(path_image, filter, path_output):
 
-    geotransform, geoprojection, size, arr = io.read_tif(path_image)
+    geotransform, geoprojection, size, array = io.read_tif(path_image)
     """ Minimum distance between two objects is 5m. 
     distance = 5/cell_size
     """
-    distance = int(7.5/geotransform[1])
-    D = ndi.distance_transform_edt(arr)
-    localMax = peak_local_max(
-        D, indices=False, min_distance=distance, labels=arr)
+    dim_array = array.shape
+    if len(dim_array) > 2:
+        depth = dim_array[2]
+    else:
+        depth = 1
 
-    # 4 Connected pixels, we can also use 8 connected pixels
-    if int(filter) == 4:
-        filter = [[0, 1, 0],
-                  [1, 1, 1],
-                  [0, 1, 0]]
-    elif int(filter) == 8:
-        filter = [[1, 1, 1],
-                  [1, 1, 1],
-                  [1, 1, 1]]
+    labels = np.zeros(array.shape)
+    for i in range(depth):
+        try:
+            arr = array[:, :, i]
+        except:
+            arr = array[:, :]
+        distance = int(7.5/geotransform[1])
+        D = ndi.distance_transform_edt(arr)
+        localMax = peak_local_max(
+            D, indices=False, min_distance=distance, labels=arr)
 
-    filter = np.asarray(filter)
+        # 4 Connected pixels, we can also use 8 connected pixels
+        if int(filter) == 4:
+            filter = [[0, 1, 0],
+                      [1, 1, 1],
+                      [0, 1, 0]]
+        elif int(filter) == 8:
+            filter = [[1, 1, 1],
+                      [1, 1, 1],
+                      [1, 1, 1]]
 
-    # markers = ndimage.label(localMax, structure=filter)[0]
-    markers = ndi.label(localMax, structure=filter)[0]
-    labels = watershed(-D, markers, mask=arr)
+        filter = np.asarray(filter)
+
+        # markers = ndimage.label(localMax, structure=filter)[0]
+        markers = ndi.label(localMax, structure=filter)[0]
+        try:
+            labels[:, :, i] = watershed(-D, markers, mask=arr)
+        except:
+            labels = watershed(-D, markers, mask=arr)
     print('Saving watershed segmentation to %s' % (path_output))
     io.write_tif(path_output, labels, geotransform, geoprojection, size)
     return path_output
