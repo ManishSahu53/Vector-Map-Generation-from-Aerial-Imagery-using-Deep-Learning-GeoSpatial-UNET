@@ -158,6 +158,7 @@ def erosion(path_image, filter, path_output):
     min_area = 9  # 9 sq.metres
     num_pixel = int(min_area/cell_size*cell_size)
     dilate = np.asarray(dilate, dtype=int)
+    dilate = np.absolute(dilate)
     cleaned = remove_small_objects(dilate, min_size=num_pixel, connectivity=2)
 
     print('Saving erosion to %s' % (path_output))
