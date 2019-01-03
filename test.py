@@ -14,7 +14,7 @@ import argparse
 from src.io import checkdir
 from src import postprocess
 import gdal
-
+from os.path import basename, normpath, join, splitext, dirname, isfile
 # Setup logging
 # logger = log.get_logger('testing')
 # logger.propagate = False
@@ -100,19 +100,19 @@ filter = 3
 simplify_para = 0.7  # in metres
 
 # input data
-path_image = os.path.join(path_data, 'image')
+path_image = join(path_data, 'image')
 
 # Results path
-path_result = os.path.join(path_data, 'result')
-path_tiled = os.path.join(path_result, 'tiled')
-path_predict = os.path.join(path_result, 'prediction')
-path_merged_prediction = os.path.join(path_result, 'merged_prediction')
+path_result = join(path_data, 'result')
+path_tiled = join(path_result, 'tiled')
+path_predict = join(path_result, 'prediction')
+path_merged_prediction = join(path_result, 'merged_prediction')
 
 # Tiled path
-path_tile_image = os.path.join(path_tiled, 'image')
+path_tile_image = join(path_tiled, 'image')
 
 # Output file
-file_output = os.path.join(path_merged_prediction, 'output.tif')
+file_output = join(path_merged_prediction, 'output.tif')
 
 # Logging output paths
 print('Tile image path is %s' % (path_merged_prediction))
@@ -134,8 +134,8 @@ checkdir(path_merged_prediction)
 if skip_gridding == 0:
     time = mtime.time()
     current_process.append('tiling')
-    tile_image = io.checkres(path_image, grid_size,
-                             path_tile_image, percent_overlap)
+    tile_image = io.test_checkres(path_image, grid_size,
+                                  path_tile_image, percent_overlap)
     timing[current_process[-1]] = mtime.time() - time
 print('Tiling Completed')
 
@@ -185,12 +185,15 @@ for k in range(part):
         train_image, batch_size=16, verbose=1)  # , steps=None)
     current_process.append('predicting')
 
+    print('Saving Prediction...')
     predict_image = []
     for i in range(predict_result.shape[0]):
         # im = train_images[i]
         lb = predict_result[i, :, :, :]
         lb = np.round(lb, decimals=0)
-        path_im = os.path.join(path_predict, os.path.basename(data['name'][i]))
+        path_im = join(
+            path_predict, basename(normpath(dirname(train_set.image_part_list[k][i]))), basename(data['name'][i]))
+        checkdir(os.path.dirname(path_im))
         predict_image.append(path_im)
 
         # Saving data to disk
@@ -198,6 +201,11 @@ for k in range(part):
         io.write_tif(path_im, lb*255, data['geotransform']
                      [i], data['geoprojection'][i], data['size'][i])
         current_process.append('saving_prediction')
+    
+    # Flushing all the memory 
+    train_image = []
+    predict_result = []
+    lb = []
 
 timing['Processing'] = mtime.time() - st_time
 
@@ -207,8 +215,21 @@ time = mtime.time()
 print('Merging and compressing %s tiled dataset. This may take a while' % (
     str(train_set.count)))
 current_process.append('merging')
-io.merge_tile(file_output, predict_image)
 
+path_merged = []
+for root, dirs, files in os.walk(path_predict):
+    _data = []
+    temp = join(path_merged_prediction, basename(normpath(root)) + '.tif')
+    path_merged.append(temp)
+
+    for file in files:
+        if file.endswith(".tif") or file.endswith(".tiff"):
+            _data.append(join(root, file))
+    try:
+        io.merge_tile(temp, _data)
+    except:
+        print('Warming! No data found in %s' % (root))
+        continue
 # merging completed
 timing[current_process[-1]] = mtime.time() - time
 
@@ -220,8 +241,19 @@ if linear_feature == 0:
     current_process.append('erosion')
     time = mtime.time()
 
-    path_erosion = os.path.join(path_merged_prediction, 'erosion.tif')
-    file_output = postprocess.erosion(file_output, filter, path_erosion)
+    path_erosion = join(path_merged_prediction, 'erosion')
+    checkdir(path_erosion)
+
+    file_erosion = []
+    for j in range(len(path_merged)):
+        if isfile(path_merged[j]) is True:
+            temp = join(
+                path_erosion, basename(path_merged[j]))
+            file_erosion.append(temp)
+            file_output = postprocess.erosion(path_merged[j], filter, temp)
+        else:
+            print('Warning! file %s not found' % (path_merged[j]))
+            continue
 
     # Erosion completed
     timing[current_process[-1]] = mtime.time() - time
@@ -231,8 +263,17 @@ if linear_feature == 0:
     print('Post Processing watershed_segmentation')
     current_process.append('watershed_segmentation')
     time = mtime.time()
-    path_watershed = os.path.join(path_merged_prediction, 'watershed.tif')
-    file_output = postprocess.waterseg(file_output, neighbour, path_watershed)
+
+    path_watershed = join(path_merged_prediction, 'watershed')
+    checkdir(path_watershed)
+    file_watershed = []
+
+    for j in range(len(file_erosion)):
+        temp = join(
+            path_watershed, basename(file_erosion[j]))
+        file_watershed.append(temp)
+        file_output = postprocess.waterseg(
+            file_erosion[j], neighbour, temp)
 
     # Watershed segmentation completed
     timing[current_process[-1]] = mtime.time() - time
@@ -242,23 +283,45 @@ if linear_feature == 0:
     print('Converting Raster to vector')
     current_process.append('vectorization')
 
-    path_r2v = io.raster2vector(
-        file_output, os.path.dirname(file_output), output_format)
+    path_vector = join(path_merged_prediction, 'vector')
+    checkdir(path_vector)
+    file_vector = []
+
+    for j in range(len(file_watershed)):
+        path_r2v = io.raster2vector(
+            file_watershed[j], path_vector, output_format)
+        for i in range(len(path_r2v)):
+            file_vector.append(path_r2v[i])
 
     # Vectorization completed
     timing[current_process[-1]] = mtime.time() - time
 
+    path_simplify = join(path_merged_prediction, 'simplify')
+    checkdir(path_simplify)
+    file_simplify = []
+
     # Simplification of polygons
-    path_simplify = os.path.join(path_merged_prediction, 'simplify.shp')
-    postprocess.simplify_polygon(path_r2v, simplify_para, path_simplify)
+    for j in range(len(file_vector)):
+        temp = join(path_simplify, basename(file_vector[j]))
+        print(temp)
+        print(file_vector[j])
+        file_simplify.append(temp)
+        postprocess.simplify_polygon(file_vector[j], simplify_para, temp)
 
     # Shp to axis aligned bounding box
     print('Post Processing bounding box')
     current_process.append('aabbox')
     time = mtime.time()
 
-    path_bbox = os.path.join(path_merged_prediction, 'bbox.shp')
-    postprocess.aabbox(path_r2v, path_bbox)
+    path_bbox = join(path_merged_prediction, 'bbox')
+    checkdir(path_bbox)
+    file_bbox = []
+    for j in range(len(file_simplify)):
+        temp = join(path_bbox, basename(file_simplify[j]))
+        print(temp)
+        print(file_simplify[j])
+        file_bbox.append(temp)
+        postprocess.aabbox(file_simplify[j], temp)
 
     # aabbox completed
     timing[current_process[-1]] = mtime.time() - time
@@ -269,24 +332,38 @@ elif linear_feature == 1:
     current_process.append('skeletonization')
     time = mtime.time()
 
-    path_skeleton = os.path.join(path_merged_prediction, 'skeleton.tif')
-    _ = postprocess.skeletonize(file_output, path_skeleton)
+    path_skeleton = join(path_merged_prediction, 'path_skeleton')
+    checkdir(path_skeleton)
+
+    file_skeleton = []
+    for j in range(len(path_merged)):
+        temp = join(
+            path_skeleton, basename(path_merged[j]))
+        file_skeleton.append(temp)
+        _ = postprocess.skeletonize(path_merged[j], temp)
 
     # Skeletonization completed
     timing[current_process[-1]] = mtime.time() - time
 
     # Converting raster to Vector
     time = mtime.time()
+
     print('Converting Raster to vector')
-    path_r2v = io.raster2vector(
-        file_output, os.path.dirname(file_output), output_format)
+    path_vector = join(path_merged_prediction, 'vector')
+    checkdir(path_vector)
+    file_vector = []
+
+    for j in range(len(file_skeleton)):
+        temp = file_skeleton[j]
+        path_r2v = io.raster2vector(
+            temp, path_vector, output_format)
 
     # Vectorization completed
     timing[current_process[-1]] = mtime.time() - time
 
 
 # Saving to JSON
-io.tojson(timing, os.path.join(path_result, 'Timing.json'))
+io.tojson(timing, join(path_result, 'Timing.json'))
 
 print('Process Completed')
 sys.exit()

@@ -6,6 +6,7 @@ import sys
 import numpy as np
 from src.gridding import gridding
 from src.bf_grid import bf_grid
+from src.bf_grid import test_grid
 import math
 import json
 import ogr
@@ -36,39 +37,41 @@ class train_data():
 
     # Creating list of data (images and labels)
     def list_data(self):
-        for file in os.listdir(self.path_image):
-            if file.endswith(".tif") or file.endswith(".tiff"):
-                if os.path.isfile(os.path.abspath(os.path.join(self.path_image, file))) == False:
-                    print('File %s not found' %
-                          (os.path.abspath(os.path.join(self.path_image, file))))
-                    continue
-                #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
-
-                """
-                Only load labels with path is given. Else skip. 
-                This is because in case of testing, we dont have test labels
-                """
-                if len(self.path_label) != 0:
-                    if os.path.isfile(os.path.abspath(os.path.join(self.path_label, file))) == False:
+        for root_image, dirs, files in os.walk(self.path_image):
+            for file in files:
+                if file.endswith(".tif") or file.endswith(".tiff"):
+                    if os.path.isfile(os.path.abspath(os.path.join(root_image, file))) == False:
                         print('File %s not found' %
-                              (os.path.abspath(os.path.join(self.path_label, file))))
+                              (os.path.abspath(os.path.join(root_image, file))))
                         continue
-                    #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
-                else:
-                    continue
+                    #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
 
-                self.image_list.append(os.path.abspath(
-                    os.path.join(self.path_image, file)))
+                    """
+                    Only load labels with path is given. Else skip. 
+                    This is because in case of testing, we dont have test labels
+                    """
+                    if len(self.path_label) != 0:
+                        if os.path.isfile(os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))) == False:
+                            print('File %s not found' %
+                                  (os.path.abspath(os.path.join(root_label, file))))
+                            continue
+                        #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
+                    else:
+                        continue
 
-                self.label_list.append(os.path.abspath(
-                    os.path.join(self.path_label, file)))
+                    self.image_list.append(os.path.abspath(
+                        os.path.join(root_image, file)))
 
-                self.count = self.count + 1
+                    self.label_list.append(os.path.abspath(
+                        os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file)))
+
+                    self.count = self.count + 1
 
         # Spliting large number of images into smaller parts to fit in CPU memory
         self.image_part_list = self.split_list(self.image_list)
         self.label_part_list = self.split_list(self.label_list)
-
+        if self.count == 0:
+            sys.exit('No Images found')
         print('Total number of images found: %s' % (self.count))
         print('Total number of splits: %s' % (len(self.image_part_list)))
 
@@ -202,6 +205,33 @@ def checkres(path, size, output, percent_overlap):
     return True
 
 
+def test_checkres(path, size, output, percent_overlap):
+    #    inputs = []
+    grid_size = size
+
+    # 10% overlap to be taken
+    overlap = int(grid_size * percent_overlap/100)
+    test_grid(path, size, size, overlap, output)
+#    for file in os.listdir(path):
+#        if file.endswith(".tif"):
+#            array = cv2.imread(os.path.join(path,file))
+#            shapes = array.shape
+#            if max(shapes)>size:
+#                inputs.append(os.path.join(path,file))
+#
+#        elif file.endswith(".tiff"):
+#            array = cv2.imread(os.path.join(path,file))
+#            shapes = array.shape
+#            if max(shapes)>size:
+#                inputs.append(os.path.join(path,file))
+#        else:
+#            return False
+#    args = [inputs, grid_size, grid_size, overlap, output]
+#    print('Gridding Images ...')
+#    gridding(args)
+    return True
+
+
 # Saving to JSON
 def tojson(dictA, file_json):
     with open(file_json, 'w') as f:
@@ -247,7 +277,7 @@ def raster2vector(path_raster, path_vector, output_format):
 
     src_ds = gdal.Open(path_raster)
     num_band = src_ds.RasterCount
-
+    temp = []
     for i in range(1, num_band+1):
         if src_ds is None:
             print('Unable to open %s' % src_fileName)
@@ -258,6 +288,7 @@ def raster2vector(path_raster, path_vector, output_format):
 
         dst_layername = os.path.join(
             path_vector, os.path.splitext(os.path.basename(path_raster))[0] + '_b' + str(i) + ext)
+        temp.append(dst_layername)
         dst_fieldname = 'value'
 
         drv = ogr.GetDriverByName(format)
@@ -280,5 +311,5 @@ def raster2vector(path_raster, path_vector, output_format):
         src_ds = None
         dst_ds = None
         mask_ds = None
-        print('Vector successfully converted to %s' % (dst_layername))
-        return dst_layername
+    print('Vector successfully converted to %s' % (dst_layername))
+    return temp

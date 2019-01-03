@@ -106,7 +106,8 @@ def aabbox(path_shp, path_output):
     fio = fiona.open(path_shp, 'r')
 
     # Extracting coordinates
-    coord_sys = fio.crs_wkt
+    # coord_sys = fio.crs_wkt
+    coord_sys = fio.crs
 
     shapes = sf.shapes()
     num_shp = len(shapes)

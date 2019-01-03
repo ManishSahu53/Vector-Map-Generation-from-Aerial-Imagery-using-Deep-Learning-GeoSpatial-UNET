@@ -11,7 +11,7 @@ import time
 # Importing Keras
 from keras.optimizers import Adam
 from keras import backend as K
-from keras.callbacks import ModelCheckpoint, CSVLogger
+from keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 from keras.models import load_model
 from src.io import checkdir
 from src import loss, model, io, log
@@ -176,6 +176,10 @@ logger.info('num_image_channels:' + str(num_image_channels))
 logger.info('num_label_channels:' + str(num_label_channels))
 logger.info('num_epoch:' + str(num_epoch))
 
+# Tensorboard
+tensorboard = TensorBoard(
+    log_dir='./logs', histogram_freq=1, write_graph=True, write_images=True)
+    
 # Listing images
 train_set.list_data()
 
@@ -318,7 +322,7 @@ for k in range(part):
                    batch_size=16,
                    epochs=num_epoch,
                    validation_split=0.15,
-                   callbacks=[csv_logger])
+                   callbacks=[csv_logger, tensorboard])
 
         logger.info('Saving model')
         umodel.save(os.path.join(save_model_lo, 'M_%s_%s.h5' %
