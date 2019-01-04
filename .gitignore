@@ -3,5 +3,6 @@
 /road
 /linkedin
 /buildings
+/logs
 *.txt
 *.ipynb
