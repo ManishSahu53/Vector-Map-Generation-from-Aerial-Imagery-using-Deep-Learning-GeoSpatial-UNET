@@ -53,7 +53,7 @@ class train_data():
                     if len(self.path_label) != 0:
                         if os.path.isfile(os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))) == False:
                             print('File %s not found' %
-                                  (os.path.abspath(os.path.join(root_label, file))))
+                                  (os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))))
                             continue
                         #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
                     else:
