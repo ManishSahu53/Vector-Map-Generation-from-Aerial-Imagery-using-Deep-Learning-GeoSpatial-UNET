@@ -243,7 +243,7 @@ for k in range(part):
 # # Post Processing shp to axis aligned bounding box
 # postprocess.aabbox(os.path.dirname(file_output), output_format)
 
-# # Saving to accuracy.json
-# io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
-# logger.info('Completed')
-# sys.exit()
+# Saving to accuracy.json
+io.tojson(accuracy, os.path.join(path_result, 'accuracy.json'))
+logger.info('Completed')
+sys.exit()
