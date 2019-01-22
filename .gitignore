@@ -4,5 +4,6 @@
 /linkedin
 /buildings
 /logs
+/test
 *.txt
 *.ipynb
