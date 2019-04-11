@@ -40,16 +40,16 @@ Watershed segmentation is quite popular for image segmentation. Local Maxima obt
 ![Watershed Segmentation](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Watershed.png)
 
 ### Vectorization
-Raster obtained from the watershed segmentation is vectorized using gdal/ogr library (Contributors of GDAL/OGR, 2018). Spatial references and coordinate systems are preserved at every step and are transferred to vector file for correct overlaying. While converting from raster to vector, the output has a lot of vertices and noises. Vector is then simplified using Douglas- Peucker algorithm (David Douglas, 1973). This helps to preserve the overall geometry of the shape while simplifying number of vertices. Basic attributes like area, perimeter and elevation of the buildings were automatically added. Finally, minimum bounding box was used and saved. 
+Raster obtained from the watershed segmentation is vectorized using gdal/ogr library (Contributors of GDAL/OGR, 2018). Spatial references and coordinate systems are preserved at every step and are transferred to vector file for correct overlaying. While converting from raster to vector, the output has a lot of vertices and noises. Vector is then simplified using Douglas- Peucker algorithm (David Douglas, 1973). This helps to preserve the overall geometry of the shape while simplifying number of vertices. Basic attributes like area, perimeter and elevation of the buildings were automatically added. Finally, minimum bounding box was used and saved
 
 ![Vectorization](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/BoundingBox.png)
 
 
 ### RESULTS
-1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/LC.png)
-2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/Africa.png)
-3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/Planned.png)
-4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/Slums.png)
+1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/LC.png)
+2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Africa.png)
+3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Planned.png)
+4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png)
 
 ## How to use
 ```
