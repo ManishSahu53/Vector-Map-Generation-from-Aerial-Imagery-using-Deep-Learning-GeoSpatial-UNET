@@ -20,7 +20,7 @@ One of the major challenges in the GIS industry is the extraction of urban featu
 
 For semantic segmentation of building footprint from RGB images, we used U-Net architecture. We added an extra batch normalization layer after every convolution layer to avoid any activations to take extreme values, to reduce sensitivity towards initial weights initialization and reduce overfitting of the model. (Olaf Ronneberger, 2015) describes all the details of architecture and used it for medical image segmentation. In the original U- Net, Olaf used 512x512 image size in the network but here we have used 200x200 image size. 
 
-![Semantic Segmentation issue](http://url/to/img.png)
+![Semantic Segmentation issue](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Connected%20Blobs.png)
 
 
 ### Noise Removal
@@ -29,7 +29,7 @@ For noise removal, we used basic morphological operation on binary data. We firs
 ### Distance Transform
 To separate connected buildings, we assumed that connections/binary bridge in the joined binary blobs is less than the area of buildings itself. We used this fact and applied distance transformation (Jain, 1989) to binary image. Thus connection/binary bridge were assigned less weight as compared to buildings itself. See Figure below for illustration.
 
-![Distance Transformation](http://url/to/img.png)
+![Distance Transformation](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Distance%20Transform.png)
 
 ### Local Maxima
 To overcome the problem described above, we used Local Maxima approach. Since connections are smaller than the buildings itself, finding local maxima ensured that it lies inside building area and not in the connection. This local maximum point acted as input source/sink to the watershed algorithm.
@@ -37,12 +37,19 @@ To overcome the problem described above, we used Local Maxima approach. Since co
 ### Watershed Segmentation
 Watershed segmentation is quite popular for image segmentation. Local Maxima obtained acted here as sink point and negative of distance transform as cost map. This helped to separate connected binary blobs effectively. Each blob is given a unique index for further processing
 
-![Watershed Segmentation](http://url/to/img.png)
+![Watershed Segmentation](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Watershed.png)
 
 ### Vectorization
 Raster obtained from the watershed segmentation is vectorized using gdal/ogr library (Contributors of GDAL/OGR, 2018). Spatial references and coordinate systems are preserved at every step and are transferred to vector file for correct overlaying. While converting from raster to vector, the output has a lot of vertices and noises. Vector is then simplified using Douglas- Peucker algorithm (David Douglas, 1973). This helps to preserve the overall geometry of the shape while simplifying number of vertices. Basic attributes like area, perimeter and elevation of the buildings were automatically added. Finally, minimum bounding box was used and saved. 
 
-![Vectorization](http://url/to/img.png)
+![Vectorization](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/BoundingBox.png)
+
+
+### RESULTS
+1. ![Small_village_in_Maharashtra_India]()
+2. ![Dense_populated_area_in_Africa]()
+3. ![Planned_colony]()
+4. ![Slums]()
 
 ## How to use
 ```
