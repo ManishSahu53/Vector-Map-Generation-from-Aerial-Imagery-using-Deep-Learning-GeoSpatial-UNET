@@ -46,10 +46,10 @@ Raster obtained from the watershed segmentation is vectorized using gdal/ogr lib
 
 
 ### RESULTS
-1. ![Small_village_in_Maharashtra_India]()
-2. ![Dense_populated_area_in_Africa]()
-3. ![Planned_colony]()
-4. ![Slums]()
+1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/LC.png)
+2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/Africa.png)
+3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/Planned.png)
+4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/results/Slums.png)
 
 ## How to use
 ```
