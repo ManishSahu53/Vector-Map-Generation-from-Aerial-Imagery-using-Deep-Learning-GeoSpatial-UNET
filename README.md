@@ -51,6 +51,9 @@ Raster obtained from the watershed segmentation is vectorized using gdal/ogr lib
 3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Planned.png)
 4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png)
 
+### Pretrained Weights
+Here is pretrained weight for buildings ![Weights](https://drive.google.com/file/d/1scRiEocm7kyngmy3-OWW796gYjvBkcf_/view?usp=sharing)
+
 ## How to use
 ```
 python3 train.py [-h] -d DATA [-s SIZE] [-c CLASSES] [-sg SKIP_GRIDDING]
