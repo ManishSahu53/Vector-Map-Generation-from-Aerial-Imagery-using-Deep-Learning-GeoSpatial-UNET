@@ -71,3 +71,7 @@ optional arguments:
                         If gridding is already done then skip it. [Default] is
                         No = 0
 ```
+
+```
+python3 test.py [-h] -d DATA [-s SIZE] [-c CLASSES] [-sg SKIP_GRIDDING]
+```
