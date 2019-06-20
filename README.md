@@ -1,4 +1,9 @@
 # Unet Implementation is Keras with GPU
+## International Publication
+ISPRS (International Soceity of Photogrammetry and Remote Sensing)
+![Full paper](https://doi.org/10.5194/isprs-annals-IV-2-W5-157-2019) is here.
+
+**How to cite**: Sahu, M. and Ohri, A.: VECTOR MAP GENERATION FROM AERIAL IMAGERY USING DEEP LEARNING, ISPRS Ann. Photogramm. Remote Sens. Spatial Inf. Sci., IV-2/W5, 157-162, https://doi.org/10.5194/isprs-annals-IV-2-W5-157-2019, 2019. 
 
 ## Background
 I have created this repo to do instance segmentation uisng U-NET and simple post processing techniques for large geospatial dtaset.
