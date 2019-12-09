@@ -8,3 +8,8 @@
 /railways
 *.txt
 *.ipynb
+*.pyc
+*.tif
+*.tiff
+*.h5
+

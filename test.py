@@ -175,11 +175,13 @@ for k in range(part):
     # defining loss functions
     loss_ = loss.dice_coef_loss
 
+    print('Loading trained model...')
     # loading model from model file not weights file
     model = load_model(path_model, custom_objects={
         'dice_coef_loss': loss.dice_coef_loss, 'dice_coef': loss.dice_coef, 'jaccard_coef': loss.jaccard_coef})
     current_process.append('loading_model')
 
+    print('Predicting Model...')
     # prediction model
     predict_result = model.predict(
         train_image, batch_size=16, verbose=1)  # , steps=None)
