@@ -11,6 +11,7 @@ import math
 import json
 import ogr
 import osr
+import logging
 
 
 class train_data():
@@ -41,8 +42,8 @@ class train_data():
             for file in files:
                 if file.endswith(".tif") or file.endswith(".tiff"):
                     if os.path.isfile(os.path.abspath(os.path.join(root_image, file))) == False:
-                        print('File %s not found' %
-                              (os.path.abspath(os.path.join(root_image, file))))
+                        logging.info('File %s not found' %
+                                     (os.path.abspath(os.path.join(root_image, file))))
                         continue
                     #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
 
@@ -52,8 +53,8 @@ class train_data():
                     """
                     if len(self.path_label) != 0:
                         if os.path.isfile(os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))) == False:
-                            print('File %s not found' %
-                                  (os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))))
+                            logging.info('File %s not found' %
+                                         (os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))))
                             continue
                         #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
                     else:
@@ -63,7 +64,8 @@ class train_data():
                         os.path.join(root_image, file)))
 
                     self.label_list.append(os.path.abspath(
-                        os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file)))
+                        os.path.join(os.path.join(self.path_label,
+                                                  os.path.basename(root_image)), file)))
 
                     self.count = self.count + 1
 
@@ -72,17 +74,19 @@ class train_data():
         self.label_part_list = self.split_list(self.label_list)
         if self.count == 0:
             sys.exit('No Images found')
-        print('Total number of images found: %s' % (self.count))
-        print('Total number of splits: %s' % (len(self.image_part_list)))
+        logging.info('Total number of images found: %s' % (self.count))
+        logging.info('Total number of splits: %s' %
+                     (len(self.image_part_list)))
 
 
 # Loading images from list
 def get_image(image_list, image_size):
     image = []
-    print('Reading Images...')
+    logging.info('Reading Images...')
     for i in range(len(image_list)):
         if i % 500 == 0:
-            print('Reading %s, %s' % (str(i), os.path.basename(image_list[i])))
+            logging.info('Reading %s, %s' % (str(i),
+                                             os.path.basename(image_list[i])))
         image.append(cv2.resize(cv2.imread(os.path.abspath(
             image_list[i])), (image_size, image_size)))
 
@@ -92,10 +96,11 @@ def get_image(image_list, image_size):
 # Loading labels from list
 def get_label(label_list, image_size):
     label = []
-    print('Reading Labels...')
+    logging.info('Reading Labels...')
     for i in range(len(label_list)):
         if i % 500 == 0:
-            print('Reading %s, %s' % (str(i), os.path.basename(label_list[i])))
+            logging.info('Reading %s, %s' %
+                         (str(i), os.path.basename(label_list[i])))
         gt, gp, s, lb = read_tif(os.path.abspath(label_list[i]))
         label.append(cv2.resize(lb, (image_size, image_size)))
 
@@ -163,11 +168,12 @@ def write_tif(path_tif, array, geotransform, geoprojection, size):
     for i in range(depth):
         try:
             arr = array[:, :, i]
-        except:
+        except Exception as e:
             arr = array[:, :]
         arr = cv2.resize(arr, size)
         outdata.GetRasterBand(i+1).WriteArray(arr)
-    # outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want these values transparent
+    # outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want ... \
+    # ...\ these values transparent
     outdata.FlushCache()  # saves to disk!!
 
 
@@ -200,7 +206,7 @@ def checkres(path, size, output, percent_overlap):
 #        else:
 #            return False
 #    args = [inputs, grid_size, grid_size, overlap, output]
-#    print('Gridding Images ...')
+#    logging.info('Gridding Images ...')
 #    gridding(args)
     return True
 
@@ -227,7 +233,7 @@ def test_checkres(path, size, output, percent_overlap):
 #        else:
 #            return False
 #    args = [inputs, grid_size, grid_size, overlap, output]
-#    print('Gridding Images ...')
+#    logging.info('Gridding Images ...')
 #    gridding(args)
     return True
 
@@ -254,7 +260,7 @@ def merge_tile(path_output, list_tif):
     output.FlushCache()
 
     # Success
-    print('Successfully saved to %s' % (path_output))
+    logging.info('Successfully saved to %s' % (path_output))
 
 
 # Converting raster to vector
@@ -280,7 +286,7 @@ def raster2vector(path_raster, path_vector, output_format):
     temp = []
     for i in range(1, num_band+1):
         if src_ds is None:
-            print('Unable to open %s' % src_fileName)
+            logging.erro('Unable to open %s' % path_raster)
             sys.exit(1)
 
         srcband = src_ds.GetRasterBand(i)
@@ -311,5 +317,5 @@ def raster2vector(path_raster, path_vector, output_format):
         src_ds = None
         dst_ds = None
         mask_ds = None
-    print('Vector successfully converted to %s' % (dst_layername))
+    logging.info('Vector successfully converted to %s' % (dst_layername))
     return temp

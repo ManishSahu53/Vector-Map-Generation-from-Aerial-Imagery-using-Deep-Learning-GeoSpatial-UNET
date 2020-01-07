@@ -1,3 +1,4 @@
+# Folders
 /data
 /result
 /road
@@ -6,10 +7,12 @@
 /logs
 /test
 /railways
+/model
+
+# Files
 *.txt
 *.ipynb
 *.pyc
 *.tif
 *.tiff
 *.h5
-
