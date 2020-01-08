@@ -6,10 +6,15 @@ path_output = 'model/exp1'
 
 # Model Parameters
 num_image_channels = 3
+num_label_channels = 1
+
 image_size = 200
 grid_size = 200
 epoch = 20
 overlap = 10
+batch = 32
+image_ext1 = '.tif'
+image_ext2 = '.tiff'
 
 # Post Processing
 skeletonize_filter = 5
@@ -27,7 +32,6 @@ path_tensorboard_log = os.path.join(path_logs, 'tensorboard')
 
 # Path Outputs
 path_model = os.path.join(path_output, 'model')
-path_accuracy = os.path.join(path_output, 'accuracy')
 path_weight = os.path.join(path_output, 'weight')
 path_prediction = os.path.join(path_output, 'predicted')
 path_tiled = os.path.join(path_output, 'tiled')
