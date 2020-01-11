@@ -1,5 +1,3 @@
-from __future__ import print_function
-from src import loss, io, log
 # from matplotlib import pyplot as plt
 from keras.models import load_model
 import os
@@ -11,9 +9,11 @@ import numpy as np
 import time
 import argparse
 import logging
-from src.io import checkdir
 from src import postprocess
+from src import metric, io, util
+
 import gdal
+
 
 # Setup logging
 logger = log.get_logger('evaluating')
@@ -102,12 +102,12 @@ logger.info('path_tile_label : ' + path_tile_label)
 logger.info('Tile image path is %s' % (path_merged_prediction))
 
 # Creating directory
-checkdir(path_tile_image)
-checkdir(path_tile_label)
-checkdir(path_predict)
-checkdir(path_tiled)
-checkdir(path_data)
-checkdir(path_merged_prediction)
+util.check_dir(path_tile_image)
+util.check_dir(path_tile_label)
+util.check_dir(path_predict)
+util.check_dir(path_tiled)
+util.check_dir(path_data)
+util.check_dir(path_merged_prediction)
 
 # load all the training images
 train_set = io.train_data()
@@ -121,7 +121,7 @@ train_set.max_num_gpu = max_num_gpu
 accuracy = {}
 
 # Tiling images
-print('Tiling Images ...')
+logging.info('Tiling Images ...')
 logger.info('Tiling Images..')
 
 if skip_gridding == 0:
@@ -130,7 +130,7 @@ if skip_gridding == 0:
     tile_label = io.checkres(path_label, image_size,
                              path_tile_label, percent_overlap)
 
-print('Tiling Completed')
+logging.info('Tiling Completed')
 logger.info('Tiling Completed')
 
 # Logging inputs data
@@ -145,7 +145,7 @@ logger.info('percent_overlap : ' + str(percent_overlap))
 # Listing images
 train_set.list_data()
 part = len(train_set.image_part_list)
-print('Number of parts : %s' % (str(part)))
+logging.info('Number of parts : %s' % (str(part)))
 for k in range(part):
 
     # Loading the training image and labeled image
@@ -171,9 +171,9 @@ for k in range(part):
         train_lb[i, :, :, 0] = temp
 
     train_label = train_lb
-    # Printing type and number of imgaes and labels
-    print("shape of train_image" + str(shape_train_image))
-    print("shape of train_label" + str(shape_train_label))
+    # logging.infoing type and number of imgaes and labels
+    logging.info("shape of train_image" + str(shape_train_image))
+    logging.info("shape of train_label" + str(shape_train_label))
     logger.info("shape of train_image" + str(shape_train_image))
     logger.info("shape of train_label" + str(shape_train_label))
 
@@ -191,10 +191,10 @@ for k in range(part):
     eval_score = model.evaluate(
         train_image, train_label, batch_size=16, verbose=1)  # , sample_weight=None, steps=None)
 
-    print('Model loss is : %s' % (eval_score[0]))
-    print('Model accuracy is : %s' % (eval_score[1]))
-    print('Model dice coefficient is : %s' % (eval_score[2]))
-    print('Model Jacard coefficient is : %s' % (eval_score[3]))
+    logging.info('Model loss is : %s' % (eval_score[0]))
+    logging.info('Model accuracy is : %s' % (eval_score[1]))
+    logging.info('Model dice coefficient is : %s' % (eval_score[2]))
+    logging.info('Model Jacard coefficient is : %s' % (eval_score[3]))
 
     # Logging model accuracies
     logger.info('Model loss is : %s' % (eval_score[0]))

@@ -13,6 +13,7 @@ from src import io
 import gdal
 import ogr
 import osr
+import config
 
 # For Post Processing libraries
 from scipy.ndimage.interpolation import rotate
@@ -132,7 +133,8 @@ def aabbox(path_shp, path_output):
     }
 
     # Write a new Shapefile
-    with fiona.open(path_output, 'w', crs=coord_sys, driver='ESRI Shapefile', schema=schema) as c:
+    with fiona.open(path_output, 'w', crs=coord_sys, driver='ESRI Shapefile',
+                    schema=schema) as c:
         # If there are multiple geometries, put the "for" loop here
         for i in range(len(poly)):
             c.write({
@@ -162,14 +164,14 @@ def erosion(path_image, filter, path_output):
     dilate = np.absolute(dilate)
     cleaned = remove_small_objects(dilate, min_size=num_pixel, connectivity=2)
 
-    print('Saving erosion to %s' % (path_output))
+    logging.info('Saving erosion to %s' % (path_output))
     io.write_tif(path_output, cleaned, geotransform, geoprojection, size)
     return path_output
 
 
 # Skeletonize raster dataset
 def skeletonize(path_image, path_output):
-    filter = 5
+    filter = config.skeletonize_filter
 
     geotransform, geoprojection, size, arr = io.read_tif(path_image)
     """Array input must be binary
@@ -180,7 +182,7 @@ def skeletonize(path_image, path_output):
     arr = cv2.dilate(arr, dilate_kernel)
     skeleton = skt(arr)
 
-    print('Saving skeleton to %s' % (path_output))
+    logging.info('Saving skeleton to %s' % (path_output))
     io.write_tif(path_output, skeleton*255, geotransform, geoprojection, size)
     return path_output
 
@@ -189,8 +191,8 @@ def skeletonize(path_image, path_output):
 def waterseg(path_image, filter, path_output):
 
     geotransform, geoprojection, size, array = io.read_tif(path_image)
-    """ Minimum distance between two objects is 5m. 
-    distance = 5/cell_size
+    """ Minimum distance between two objects is 7.5m
+        distance = 5/cell_size
     """
     dim_array = array.shape
     if len(dim_array) > 2:
@@ -202,9 +204,9 @@ def waterseg(path_image, filter, path_output):
     for i in range(depth):
         try:
             arr = array[:, :, i]
-        except:
+        except Exception as e:
             arr = array[:, :]
-        distance = int(7.5/geotransform[1])
+        distance = int(config.minimum_distance_watershed/geotransform[1])
         D = ndi.distance_transform_edt(arr)
         localMax = peak_local_max(
             D, indices=False, min_distance=distance, labels=arr)
@@ -225,9 +227,9 @@ def waterseg(path_image, filter, path_output):
         markers = ndi.label(localMax, structure=filter)[0]
         try:
             labels[:, :, i] = watershed(-D, markers, mask=arr)
-        except:
+        except Exception as e:
             labels = watershed(-D, markers, mask=arr)
-    print('Saving watershed segmentation to %s' % (path_output))
+    logging.info('Saving watershed segmentation to %s' % (path_output))
     io.write_tif(path_output, labels, geotransform, geoprojection, size)
     return path_output
 
