@@ -4,6 +4,7 @@ import numpy as np
 import config
 import cv2
 import os
+from src import io
 
 
 class DataGenerator(keras.utils.Sequence):
@@ -36,7 +37,6 @@ class DataGenerator(keras.utils.Sequence):
 
         # Find list of IDs
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
-
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
 
@@ -48,36 +48,54 @@ class DataGenerator(keras.utils.Sequence):
         if self.shuffle is True:
             np.random.shuffle(self.indexes)
 
+    # Reading RGB Image
     def read_image(self, path_image):
         """
         Reading image and resize it according to image size
         """
-        return cv2.resize(cv2.imread(path_image), (image_size, image_size))
+        gt, gp, size, arr = io.read_tif(path_image)
+        # Taking RGB only and skipping alpha band
+        arr = arr[:,:,:3]
+        # print('Maximum Value Image: {}'.format(np.max(arr)))
+        return cv2.resize(arr, (self.image_size, self.image_size))
 
+    # Reading Label image
+    def read_label(self, path_image):
+        """
+        Reading image and resize it according to image size
+        """
+        gt, gp, size, arr = io.read_tif(path_image)
+        arr[arr == 255] = 1
+        # print('Maximum Value Label: {}'.format(np.max(arr)))
+        return cv2.resize(arr, (self.image_size, self.image_size))
+    
     def __data_generation(self, list_IDs_temp):
         'Generates data containing batch_size samples'
         # X : (n_samples, *dim, n_channels)
         # Initialization
+        # print('batch_size: {}, image_size: {}, image_channels: {}'.format(
+        #       self.batch_size, self.image_size, self.image_channels))
         x = np.empty((self.batch_size, self.image_size,
-                      self.image_size, self.image_channels))
+                      self.image_size, self.image_channels), dtype=np.float32)
 
         y = np.empty((self.batch_size, self.image_size,
-                      self.image_size, self.label_channels))
+                      self.image_size, self.label_channels), dtype=np.float32)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Reading images and storing it
-            x[i] = self.read_image(self.imageMap[ID])
-            y[i] = self.read_image(self.labelMap[ID])
+            image_arr = self.read_image(self.imageMap[ID])
+            x[i] = image_arr
+            y[i, :, :, 0] = self.read_label(self.labelMap[ID])
 
         return x, y
 
 
 # Generating data map
 class getData():
-    def __init__(self):
-        self.path_tiled_image = config.path_tiled_image
-        self.path_tiled_label = config.path_tiled_label
+    def __init__(self, path_tile_image, path_tile_label):
+        self.path_tiled_image = path_tile_image
+        self.path_tiled_label = path_tile_label
 
     def getList(self):
         tiled_image = {}
@@ -88,8 +106,8 @@ class getData():
         for root, dirs, files in os.walk(self.path_tiled_image):
             for file in files:
                 # If .TIF or .TIFF file found then
-                if file.endwith(config.image_ext1) or \
-                        file.endwith(config.image_ext2):
+                if file.endswith(config.image_ext1) or \
+                        file.endswith(config.image_ext2):
 
                     key.append(index)
                     tiled_image[index] = os.path.join(self.path_tiled_image,

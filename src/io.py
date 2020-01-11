@@ -133,6 +133,10 @@ def get_geodata(image_list):
 
 # Reading raster dataset
 def read_tif(path_tif):
+    """
+    Input: TIF image path
+    Output: geoTransform, geoProjection, size, arr
+    """
     #    array = cv2.imread(tif_file)
     #    driver = gdal.GetDriverByName("GTiff")
     ds = gdal.Open(path_tif)
@@ -143,7 +147,10 @@ def read_tif(path_tif):
     for i in range(num_band):
         band = ds.GetRasterBand(i+1)
         arr = band.ReadAsArray()
+        no_data = band.GetNoDataValue()
+        arr[arr==no_data] = 0
         array[:, :, i] = arr
+    
     size = arr.shape
     geotransform = ds.GetGeoTransform()
     geoprojection = ds.GetProjection()

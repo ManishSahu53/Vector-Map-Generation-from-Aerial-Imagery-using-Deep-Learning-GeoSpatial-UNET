@@ -1,5 +1,3 @@
-from __future__ import logging.info_function
-from src import loss, io, log
 # from matplotlib import pyplot as plt
 from keras.models import load_model
 import os
@@ -11,9 +9,11 @@ import numpy as np
 import time
 import argparse
 import logging
-from src.io import checkdir
 from src import postprocess
+from src import metric, io, util
+
 import gdal
+
 
 # Setup logging
 logger = log.get_logger('evaluating')
@@ -102,12 +102,12 @@ logger.info('path_tile_label : ' + path_tile_label)
 logger.info('Tile image path is %s' % (path_merged_prediction))
 
 # Creating directory
-checkdir(path_tile_image)
-checkdir(path_tile_label)
-checkdir(path_predict)
-checkdir(path_tiled)
-checkdir(path_data)
-checkdir(path_merged_prediction)
+util.check_dir(path_tile_image)
+util.check_dir(path_tile_label)
+util.check_dir(path_predict)
+util.check_dir(path_tiled)
+util.check_dir(path_data)
+util.check_dir(path_merged_prediction)
 
 # load all the training images
 train_set = io.train_data()

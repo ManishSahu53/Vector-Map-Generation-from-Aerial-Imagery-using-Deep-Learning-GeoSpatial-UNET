@@ -220,7 +220,7 @@ def stan_unet(image_size):
     logging.info(conv18.shape)
     # bn18 = BatchNormalization()(conv18)
 
-    conv19 = Conv2D(1, (1, 1), activation='sigmoid')(conv18)
+    conv19 = Conv2D(1, (1, 1), activation='softmax')(conv18)
     logging.info(conv19.shape)
 
     model = Model(inputs=[inputs], outputs=[conv19])

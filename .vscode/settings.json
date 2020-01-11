@@ -1,5 +1,6 @@
 {
     "python.linting.pycodestyleEnabled": true,
     "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true
     "python.pythonPath": "/home/manishpc/miniconda3/envs/py3/bin/python"
 }

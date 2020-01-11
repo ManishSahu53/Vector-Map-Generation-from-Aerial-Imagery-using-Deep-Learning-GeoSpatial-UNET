@@ -5,20 +5,28 @@ import logging
 import math
 import numpy as np
 import time
+import random
 
-import keras
 # Importing Keras
+import tensorflow as tf
+import keras
 from keras.optimizers import Adam
 from keras import backend as K
-from keras.callbacks import ModelCheckpoint, CSVlogging, TensorBoard
+from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.models import load_model
-from src import loss, model, io, log, util, dataGenerator
+from src import metric, model, io, util, dataGenerator
 from src.bf_grid import bf_grid
 import config
 
+
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+_config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+
 timing = {}
 util.check_dir(config.path_logs)
-util.set_logging(os.path.join(config.path_logs, 'train.log'))
+util.set_logger(os.path.join(config.path_logs, 'train.log'))
 
 parser = argparse.ArgumentParser(
     description='See description below to see all available options')
@@ -38,8 +46,8 @@ util.check_dir(config.path_model)
 util.check_dir(config.path_weight)
 util.check_dir(config.path_prediction)
 util.check_dir(config.path_tiled)
-util.check_dir(config.path_tile_image)
-util.check_dir(config.path_tile_label)
+util.check_dir(config.path_tiled_image)
+util.check_dir(config.path_tiled_label)
 
 
 # Checking if image or images path exist in data folder
@@ -56,56 +64,74 @@ if not os.path.exists(config.path_label):
     logging.error(msg)
     raise(msg)
 
-# Data Generators
-dataList = dataGenerator.getData()
-list_IDs, imageMap, labelMap = dataList.getList()
+# Writing all parameters into configuration file
+configuration = {}
 
+
+# Training Data Set
+training_dataList = dataGenerator.getData(
+    path_tile_image=config.path_tiled_image, path_tile_label=config.path_tiled_label)
+
+
+training_list_ids, training_imageMap, training_labelMap = training_dataList.getList()
+
+# Validation Data Set
+validation_dataList = dataGenerator.getData(
+    path_tile_image=config.path_vali_tiled_image, path_tile_label=config.path_vali_tiled_label)
+
+validation_list_ids, validation_imageMap, validation_labelMap = validation_dataList.getList()
+
+# Training DataGenerator
 training_generator = dataGenerator.DataGenerator(
-    list_IDs=list_IDs, imageMap=imageMap, labelMap=labelMap,
+    list_IDs=training_list_ids, imageMap=training_imageMap, labelMap=training_labelMap,
     batch_size=config.batch, n_classes=None,
     image_channels=config.num_image_channels,
     label_channels=config.num_label_channels,
-    image_size=None, shuffle=True)
+    image_size=config.image_size, shuffle=True)
+
+# Validation DataGenerator
+validation_generator = dataGenerator.DataGenerator(
+    list_IDs=validation_list_ids, imageMap=validation_imageMap, labelMap=validation_labelMap,
+    batch_size=config.batch, n_classes=None,
+    image_channels=config.num_image_channels,
+    label_channels=config.num_label_channels,
+    image_size=config.image_size, shuffle=False)
 
 """ Data Generator Ends"""
 
-count = 0
 st_time = time.time()
 
 # Logging input data
-logging.info('path_tile_image: {}'.format(config.path_tile_image))
-logging.info('path_tile_label: {}'.format(config.path_tile_label))
+logging.info('path_tiled_image: {}'.format(config.path_tiled_image))
+logging.info('path_tiled_label: {}'.format(config.path_tiled_label))
 logging.info('image_size: {}'.format(config.image_size))
 logging.info('num_image_channels: {}'.format(config.num_image_channels))
 logging.info('num_epoch: {}'.format(config.epoch))
 
-# Tensorboard
-tensorboard = TensorBoard(
-    log_dir=config.path_tensorboard_log, histogram_freq=1)
 
 unet_model = model.unet(config.image_size)
 
 # Listing images
 if args.pretrained is not None:
-    unet_model.load_weights(args.pretrained)
+    unet_model.load_model(args.pretrained)
 
 # Compiling model
 unet_model.compile(optimizer=Adam(lr=1e-4),
-                   loss='categorical_crossentropy',
-                   metrics=[loss.dice_coef, loss.jaccard_coef])
+                   loss='binary_crossentropy',
+                   metrics=[metric.dice_coef, metric.jaccard_coef])
 
 # create a UNet (512,512)
 # look at the summary of the unet
 unet_model.summary()
 
 # Logging accuracies
-csv_logger = keras.callbacks.callbacks.CSVLogger(
+csv_logger = keras.callbacks.CSVLogger(
     os.path.join(config.path_logs, 'keras_training.log'))
 
 # Creating model callbacks
 path_save_callback = os.path.join(
     config.path_weight, 'weights.{epoch:02d}-{val_loss:.2f}.hdf5')
-saving_model = keras.callbacks.callbacks.ModelCheckpoint(path_save_callback,
+saving_model = keras.callbacks.ModelCheckpoint(path_save_callback,
                                                          monitor='val_loss',
                                                          verbose=0,
                                                          save_best_only=False,
@@ -115,30 +141,14 @@ saving_model = keras.callbacks.callbacks.ModelCheckpoint(path_save_callback,
 
 # fit the unet with the actual image, train_image
 # and the output, train_label
-history = unet_model.fit_generator(
-    generator=training_generator,
-    epochs=10,
-    workers=3,
-    # sample_weight=weight_vector,
-    use_multiprocessing=True,
-    callbacks=[saving_model, csv_logger]
-)
-
-unet_model.fit_generator(generator=training_generator,
-                         batch_size=config.batch,
-                         epochs=config.epoch,
-                         workers=3,
-
-                         validation_split=0.15,
-                         callbacks=[csv_logger, tensorboard, saving_model])
-
+history = unet_model.fit_generator(generator=training_generator,
+                                   epochs=config.epoch,
+                                   workers=3,
+                                   validation_data=validation_generator,
+                                   callbacks=[csv_logger, saving_model])
 # Saving path of weigths saved
 logging.info('Saving model')
 unet_model.save(os.path.join(config.path_weight, 'final.hdf5'))
-
-# Counting number of loops
-count = count + 1
-end_loop = time.time()
 
 # Getting timings
 end_time = time.time() - st_time

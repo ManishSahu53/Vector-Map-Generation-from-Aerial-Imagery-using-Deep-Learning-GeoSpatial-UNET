@@ -7,7 +7,6 @@ Multiclass loss
 https://stats.stackexchange.com/questions/255465/accuracy-vs-jaccard-for-multiclass-problem/256140
 """
 
-
 def jaccard_distance(y_true, y_pred):
     smooth = 1
     """
@@ -28,25 +27,19 @@ def jaccard_distance(y_true, y_pred):
 #     return K.mean((2.0 * intersection + smooth) / (summation + smooth), axis=0)
 
 
-def dice_coef(y_true, y_pred, smooth=10.0):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    nume = 2. * intersection + smooth
-    deno = K.sum(y_true_f) + K.sum(y_pred_f) + smooth
-    return nume / deno
-
+def dice_coef(y_true, y_pred):
+    smooth = 1.0
+    intersection = K.sum(y_true*y_pred)
+    deno = K.sum(y_true) + K.sum(y_pred)
+    return 2*intersection / (deno + smooth)
 
 def dice_coef_loss(y_true, y_pred):
-    return 1.0 - dice_coef(y_true, y_pred, smooth=10.0)
+    return 1.0 - dice_coef(y_true, y_pred)
 
 
-def jaccard_coef(y_true, y_pred, smooth=10.0):
+def jaccard_coef(y_true, y_pred):
     '''Average jaccard coefficient per batch.'''
-    axes = (1, 2, 3)
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-
-    union = K.sum(y_true_f) + K.sum(y_pred_f) - intersection
-    return (intersection + smooth) / (union + smooth)
+    smooth = 1.0
+    intersection = K.sum(y_true*y_pred)
+    deno = K.sum(y_true) + K.sum(y_pred) - intersection
+    return (intersection) / (deno + smooth)
