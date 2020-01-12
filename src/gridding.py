@@ -6,6 +6,7 @@ from osgeo import ogr
 from osgeo import osr
 from PIL import Image
 import numpy as np
+import config
 
 progress = gdal.TermProgress_nocb
 
@@ -863,9 +864,9 @@ def initGlobals():
     Verbose = False
     CreateOptions = []
     Names = []
-    TileWidth = 200
-    TileHeight = 200
-    Overlap = 0
+    TileWidth = config.image_size
+    TileHeight = config.image_size
+    Overlap = config.overlap
     Format = 'GTiff'
     BandType = None
     Driver = None

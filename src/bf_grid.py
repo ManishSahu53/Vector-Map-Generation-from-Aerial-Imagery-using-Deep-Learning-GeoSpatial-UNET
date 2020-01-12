@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 import logging
+import config
 
 
 # Checking and creating directory in the path
@@ -36,7 +37,8 @@ def bf_grid(image_lo, image_size1, image_size2, overlap, tile_image_lo):
                                          os.path.join(image_lo, file)])
             end_time = time.time()
             logging.info(end_time - st_time)
-            logging.info("Completed " + str(i-1) + " Out of " + str(total) + " files")
+            logging.info("Completed " + str(i-1) +
+                         " Out of " + str(total) + " files")
 
 
 def test_grid(image_lo, image_size1, image_size2, overlap, tile_image_lo):
@@ -67,4 +69,24 @@ def test_grid(image_lo, image_size1, image_size2, overlap, tile_image_lo):
                                          os.path.join(image_lo, file)])
             end_time = time.time()
             logging.info(end_time - st_time)
-            logging.info("Completed " + str(i-1) + " Out of " + str(total) + " files")
+            logging.info("Completed " + str(i-1) +
+                         " Out of " + str(total) + " files")
+
+
+# Gridding Individual TIF file
+def grid_file(path_data, path_output):
+    """
+        Input : 
+            path_data : path of TIF file to be gridded
+            path_output : output location of gridded file
+        Return : Nothing. Output is automatically written into path_output
+    """
+    gridding = 'src/bf_gridding.py'
+
+    pFeatures = subprocess.call(['python3', gridding,
+                                 '-ps', str(config.image_size),
+                                 str(config.image_size),
+                                 '-overlap', str(config.overlap),
+                                 '-targetDir', path_output,
+                                 path_data])
+    

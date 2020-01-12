@@ -44,7 +44,6 @@ args = parser.parse_args()
 # Checking directories
 util.check_dir(config.path_model)
 util.check_dir(config.path_weight)
-util.check_dir(config.path_prediction)
 util.check_dir(config.path_tiled)
 util.check_dir(config.path_tiled_image)
 util.check_dir(config.path_tiled_label)
@@ -71,7 +70,6 @@ configuration = {}
 # Training Data Set
 training_dataList = dataGenerator.getData(
     path_tile_image=config.path_tiled_image, path_tile_label=config.path_tiled_label)
-
 
 training_list_ids, training_imageMap, training_labelMap = training_dataList.getList()
 
@@ -146,6 +144,7 @@ history = unet_model.fit_generator(generator=training_generator,
                                    workers=3,
                                    validation_data=validation_generator,
                                    callbacks=[csv_logger, saving_model])
+
 # Saving path of weigths saved
 logging.info('Saving model')
 unet_model.save(os.path.join(config.path_weight, 'final.hdf5'))
@@ -157,3 +156,4 @@ timing['Total Time'] = str(end_time)
 # Saving to JSON
 io.tojson(timing, os.path.join(config.path_model, 'Timing.json'))
 logging.info('Completed')
+sys.exit()
