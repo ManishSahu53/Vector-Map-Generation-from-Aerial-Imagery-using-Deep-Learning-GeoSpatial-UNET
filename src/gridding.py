@@ -6,6 +6,7 @@ from osgeo import ogr
 from osgeo import osr
 from PIL import Image
 import numpy as np
+import config
 
 progress = gdal.TermProgress_nocb
 
@@ -81,10 +82,12 @@ class tile_info(object):
         self.tileHeight = tileHeight
         self.countTilesX = 1
         if xsize > tileWidth:
-            self.countTilesX += int((xsize - tileWidth + (tileWidth - overlap) - 1) / (tileWidth - overlap))
+            self.countTilesX += int((xsize - tileWidth +
+                                     (tileWidth - overlap) - 1) / (tileWidth - overlap))
         self.countTilesY = 1
         if ysize > tileHeight:
-            self.countTilesY += int((ysize - tileHeight + (tileHeight - overlap) - 1) / (tileHeight - overlap))
+            self.countTilesY += int((ysize - tileHeight +
+                                     (tileHeight - overlap) - 1) / (tileHeight - overlap))
         self.overlap = overlap
 
     def report(self):
@@ -130,7 +133,8 @@ class mosaic_info(object):
             self.ct = None
         self.ci = [0] * self.bands
         for iband in range(self.bands):
-            self.ci[iband] = fhInputTile.GetRasterBand(iband + 1).GetRasterColorInterpretation()
+            self.ci[iband] = fhInputTile.GetRasterBand(
+                iband + 1).GetRasterColorInterpretation()
 
         extent = self.ogrTileIndexDS.GetLayer().GetExtent()
         self.ulx = extent[0]
@@ -177,7 +181,8 @@ class mosaic_info(object):
         resultSizeX = int((maxx - minx) / self.scaleX + 0.5)
         resultSizeY = int((miny - maxy) / self.scaleY + 0.5)
 
-        resultDS = self.TempDriver.Create("TEMP", resultSizeX, resultSizeY, self.bands, self.band_type, [])
+        resultDS = self.TempDriver.Create(
+            "TEMP", resultSizeX, resultSizeY, self.bands, self.band_type, [])
         resultDS.SetGeoTransform([minx, self.scaleX, 0, maxy, 0, self.scaleY])
 
         for feature in features:
@@ -201,16 +206,20 @@ class mosaic_info(object):
             # Compute source window in pixel coordinates.
             sw_xoff = int((tgw_ulx - dec.ulx) / dec.scaleX + 0.5)
             sw_yoff = int((tgw_uly - dec.uly) / dec.scaleY + 0.5)
-            sw_xsize = min(sourceDS.RasterXSize, int((tgw_lrx - dec.ulx) / dec.scaleX + 0.5)) - sw_xoff
-            sw_ysize = min(sourceDS.RasterYSize, int((tgw_lry - dec.uly) / dec.scaleY + 0.5)) - sw_yoff
+            sw_xsize = min(sourceDS.RasterXSize, int(
+                (tgw_lrx - dec.ulx) / dec.scaleX + 0.5)) - sw_xoff
+            sw_ysize = min(sourceDS.RasterYSize, int(
+                (tgw_lry - dec.uly) / dec.scaleY + 0.5)) - sw_yoff
             if sw_xsize <= 0 or sw_ysize <= 0:
                 continue
 
             # Compute target window in pixel coordinates
             tw_xoff = int((tgw_ulx - minx) / self.scaleX + 0.5)
             tw_yoff = int((tgw_uly - maxy) / self.scaleY + 0.5)
-            tw_xsize = min(resultDS.RasterXSize, int((tgw_lrx - minx) / self.scaleX + 0.5)) - tw_xoff
-            tw_ysize = min(resultDS.RasterYSize, int((tgw_lry - maxy) / self.scaleY + 0.5)) - tw_yoff
+            tw_xsize = min(resultDS.RasterXSize, int(
+                (tgw_lrx - minx) / self.scaleX + 0.5)) - tw_xoff
+            tw_ysize = min(resultDS.RasterYSize, int(
+                (tgw_lry - maxy) / self.scaleY + 0.5)) - tw_yoff
             # print(sw_xoff, sw_yoff, sw_xsize, sw_ysize, sourceDS.RasterXSize, sourceDS.RasterYSize)
             # print(tw_xoff, tw_yoff, tw_xsize, tw_ysize, resultDS.RasterXSize, resultDS.RasterYSize)
             if tw_xsize <= 0 or tw_ysize <= 0:
@@ -228,7 +237,8 @@ class mosaic_info(object):
                     t_band.SetRasterColorTable(self.ct)
                 t_band.SetRasterColorInterpretation(self.ci[bandNr - 1])
 
-                data = s_band.ReadRaster(sw_xoff, sw_yoff, sw_xsize, sw_ysize, tw_xsize, tw_ysize, self.band_type)
+                data = s_band.ReadRaster(
+                    sw_xoff, sw_yoff, sw_xsize, sw_ysize, tw_xsize, tw_ysize, self.band_type)
                 if data is None:
                     print(gdal.GetLastErrorMsg())
 
@@ -249,7 +259,7 @@ class mosaic_info(object):
         print('UL:(%f,%f)   LR:(%f,%f)'
               % (self.ulx, self.uly, self.lrx, self.lry))
 
-#def fRemoveNoData(TargetDir):
+# def fRemoveNoData(TargetDir):
 #	f = []
 #	for (dirpath, dirnames, filenames) in os.walk(TargetDir):
 #		for file in filenames:
@@ -260,16 +270,19 @@ class mosaic_info(object):
 #			if np.max(imarray) == 0:
 #				os.remove(os.path.join(TargetDir,file))
 
+
 def getTileIndexFromFiles(inputTiles, driverTyp):
 
     if Verbose:
         from sys import version_info
         if version_info >= (3, 0, 0):
-            exec('print("Building internal Index for %d tile(s) ..." % len(inputTiles), end=" ")')
+            exec(
+                'print("Building internal Index for %d tile(s) ..." % len(inputTiles), end=" ")')
         else:
             exec('print "Building internal Index for %d tile(s) ..." % len(inputTiles), ')
 
-    ogrTileIndexDS = createTileIndex("TileIndex", TileIndexFieldName, None, driverTyp)
+    ogrTileIndexDS = createTileIndex(
+        "TileIndex", TileIndexFieldName, None, driverTyp)
     for inputTile in inputTiles:
 
         fhInputTile = gdal.Open(inputTile)
@@ -277,7 +290,8 @@ def getTileIndexFromFiles(inputTiles, driverTyp):
             return None
 
         dec = AffineTransformDecorator(fhInputTile.GetGeoTransform())
-        points = dec.pointsFor(fhInputTile.RasterXSize, fhInputTile.RasterYSize)
+        points = dec.pointsFor(fhInputTile.RasterXSize,
+                               fhInputTile.RasterYSize)
 
         addFeature(ogrTileIndexDS, inputTile, points[0], points[1])
         del fhInputTile
@@ -305,7 +319,8 @@ def tileImage(minfo, ti):
 
     global LastRowIndx
     LastRowIndx = -1
-    OGRDS = createTileIndex("TileResult_0", TileIndexFieldName, Source_SRS, TileIndexDriverTyp)
+    OGRDS = createTileIndex(
+        "TileResult_0", TileIndexFieldName, Source_SRS, TileIndexDriverTyp)
 
     yRange = list(range(1, ti.countTilesY + 1))
     xRange = list(range(1, ti.countTilesX + 1))
@@ -338,7 +353,7 @@ def tileImage(minfo, ti):
                 progress(processed / float(total))
 
     print('Removing NoData files...')
-    #fRemoveNoData(TargetDir)
+    # fRemoveNoData(TargetDir)
     print('Deleted NoData files')
 
     if TileIndexName is not None:
@@ -359,7 +374,8 @@ def tileImage(minfo, ti):
 
 
 def copyTileIndexToDisk(OGRDS, fileName):
-    SHAPEDS = createTileIndex(fileName, TileIndexFieldName, OGRDS.GetLayer().GetSpatialRef(), "ESRI Shapefile")
+    SHAPEDS = createTileIndex(fileName, TileIndexFieldName,
+                              OGRDS.GetLayer().GetSpatialRef(), "ESRI Shapefile")
     OGRDS.GetLayer().ResetReading()
     while True:
         feature = OGRDS.GetLayer().GetNextFeature()
@@ -453,7 +469,8 @@ def createPyramidTile(levelMosaicInfo, offsetX, offsetY, width, height, tileName
         tt_fh.FlushCache()
 
     if Verbose:
-        print(tileName + " : " + str(offsetX) + "|" + str(offsetY) + "-->" + str(width) + "-" + str(height))
+        print(tileName + " : " + str(offsetX) + "|" +
+              str(offsetY) + "-->" + str(width) + "-" + str(height))
 
 
 def createTile(minfo, offsetX, offsetY, width, height, tilename, OGRDS):
@@ -469,7 +486,8 @@ def createTile(minfo, offsetX, offsetY, width, height, tilename, OGRDS):
     else:
         bt = BandType
 
-    dec = AffineTransformDecorator([minfo.ulx, minfo.scaleX, 0, minfo.uly, 0, minfo.scaleY])
+    dec = AffineTransformDecorator(
+        [minfo.ulx, minfo.scaleX, 0, minfo.uly, 0, minfo.scaleY])
 
     s_fh = minfo.getDataSet(dec.ulx + offsetX * dec.scaleX, dec.uly + offsetY * dec.scaleY + height * dec.scaleY,
                             dec.ulx + offsetX * dec.scaleX + width * dec.scaleX,
@@ -488,9 +506,11 @@ def createTile(minfo, offsetX, offsetY, width, height, tilename, OGRDS):
     bands = minfo.bands
 
     if MemDriver is None:
-        t_fh = Driver.Create(tilename, int(width), int(height), int(bands), bt, CreateOptions)
+        t_fh = Driver.Create(tilename, int(width), int(
+            height), int(bands), bt, CreateOptions)
     else:
-        t_fh = MemDriver.Create(tilename, int(width), int(height), int(bands), bt)
+        t_fh = MemDriver.Create(tilename, int(
+            width), int(height), int(bands), bt)
 
     if t_fh is None:
         print('Creation failed, terminating gdal_tile.')
@@ -509,8 +529,10 @@ def createTile(minfo, offsetX, offsetY, width, height, tilename, OGRDS):
             t_band.SetRasterColorTable(minfo.ct)
 
 #        data = s_band.ReadRaster( offsetX,offsetY,width,height,width,height, t_band.DataType )
-        data = s_band.ReadRaster(0, 0, readX, readY, readX, readY, t_band.DataType)
-        t_band.WriteRaster(0, 0, readX, readY, data, readX, readY, t_band.DataType)
+        data = s_band.ReadRaster(
+            0, 0, readX, readY, readX, readY, t_band.DataType)
+        t_band.WriteRaster(0, 0, readX, readY, data,
+                           readX, readY, t_band.DataType)
 
     minfo.closeDataSet(s_fh)
 
@@ -519,7 +541,8 @@ def createTile(minfo, offsetX, offsetY, width, height, tilename, OGRDS):
         tt_fh.FlushCache()
 
     if Verbose:
-        print(tilename + " : " + str(offsetX) + "|" + str(offsetY) + "-->" + str(width) + "-" + str(height))
+        print(tilename + " : " + str(offsetX) + "|" +
+              str(offsetY) + "-->" + str(width) + "-" + str(height))
 
 
 def createTileIndex(dsName, fieldName, srs, driverName):
@@ -592,20 +615,25 @@ def buildPyramid(minfo, createdTileIndexDS, tileWidth, tileHeight, overlap):
     for level in range(1, Levels + 1):
         LastRowIndx = -1
         levelMosaicInfo = mosaic_info(minfo.filename, inputDS)
-        levelOutputTileInfo = tile_info(int(levelMosaicInfo.xsize / 2), int(levelMosaicInfo.ysize / 2), tileWidth, tileHeight, overlap)
-        inputDS = buildPyramidLevel(levelMosaicInfo, levelOutputTileInfo, level)
+        levelOutputTileInfo = tile_info(int(levelMosaicInfo.xsize / 2), int(
+            levelMosaicInfo.ysize / 2), tileWidth, tileHeight, overlap)
+        inputDS = buildPyramidLevel(
+            levelMosaicInfo, levelOutputTileInfo, level)
 
 
 def buildPyramidLevel(levelMosaicInfo, levelOutputTileInfo, level):
     yRange = list(range(1, levelOutputTileInfo.countTilesY + 1))
     xRange = list(range(1, levelOutputTileInfo.countTilesX + 1))
 
-    OGRDS = createTileIndex("TileResult_" + str(level), TileIndexFieldName, Source_SRS, TileIndexDriverTyp)
+    OGRDS = createTileIndex("TileResult_" + str(level),
+                            TileIndexFieldName, Source_SRS, TileIndexDriverTyp)
 
     for yIndex in yRange:
         for xIndex in xRange:
-            offsetY = (yIndex - 1) * (levelOutputTileInfo.tileHeight - levelOutputTileInfo.overlap)
-            offsetX = (xIndex - 1) * (levelOutputTileInfo.tileWidth - levelOutputTileInfo.overlap)
+            offsetY = (yIndex - 1) * (levelOutputTileInfo.tileHeight -
+                                      levelOutputTileInfo.overlap)
+            offsetX = (xIndex - 1) * (levelOutputTileInfo.tileWidth -
+                                      levelOutputTileInfo.overlap)
             height = levelOutputTileInfo.tileHeight
             width = levelOutputTileInfo.tileWidth
 
@@ -614,8 +642,10 @@ def buildPyramidLevel(levelMosaicInfo, levelOutputTileInfo, level):
             if offsetY + height > levelOutputTileInfo.height:
                 height = levelOutputTileInfo.height - offsetY
 
-            tilename = getTileName(levelMosaicInfo, levelOutputTileInfo, xIndex, yIndex, level)
-            createPyramidTile(levelMosaicInfo, offsetX, offsetY, width, height, tilename, OGRDS)
+            tilename = getTileName(
+                levelMosaicInfo, levelOutputTileInfo, xIndex, yIndex, level)
+            createPyramidTile(levelMosaicInfo, offsetX,
+                              offsetY, width, height, tilename, OGRDS)
 
     if TileIndexName is not None:
         shapeName = getTargetDir(level) + TileIndexName
@@ -646,14 +676,16 @@ def getTileName(minfo, ti, xIndex, yIndex, level=-1):
     xIndex_str = ("%0" + str(countDigits) + "i") % (xIndex,)
 
     if UseDirForEachRow:
-        frmt = getTargetDir(level) + str(yIndex) + os.sep + parts[0] + "_" + yIndex_str + "_" + xIndex_str
+        frmt = getTargetDir(level) + str(yIndex) + os.sep + \
+            parts[0] + "_" + yIndex_str + "_" + xIndex_str
         # See if there was a switch in the row, if so then create new dir for row.
         if LastRowIndx < yIndex:
             LastRowIndx = yIndex
             if not os.path.exists(getTargetDir(level) + str(yIndex)):
                 os.mkdir(getTargetDir(level) + str(yIndex))
     else:
-        frmt = getTargetDir(level) + parts[0] + "_" + yIndex_str + "_" + xIndex_str
+        frmt = getTargetDir(level) + parts[0] + \
+            "_" + yIndex_str + "_" + xIndex_str
     # Check for the extension that should be used.
     if Extension is None:
         frmt += parts[1]
@@ -720,9 +752,9 @@ def gridding(args):
     global Levels
     global PyramidOnly
     global UseDirForEachRow
-	 
+
     Names, TileWidth, TileHeight, Overlap, TargetDir = args
-    
+
     gdal.AllRegister()
 
     if not Names:
@@ -832,9 +864,9 @@ def initGlobals():
     Verbose = False
     CreateOptions = []
     Names = []
-    TileWidth = 200
-    TileHeight = 200
-    Overlap = 0
+    TileWidth = config.image_size
+    TileHeight = config.image_size
+    Overlap = config.overlap
     Format = 'GTiff'
     BandType = None
     Driver = None
@@ -884,26 +916,27 @@ UseDirForEachRow = False
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description = 'See description below to see all available options')
+    parser = argparse.ArgumentParser(
+        description='See description below to see all available options')
 
-    parser.add_argument('-i','--input',
-                        help = 'Input tif file or list of files for processing',
-                        required = True)
+    parser.add_argument('-i', '--input',
+                        help='Input tif file or list of files for processing',
+                        required=True)
 
-    parser.add_argument('-s','--size',type = int,
-                        help = 'Grid size of image to be used. [Default] = 200',
-                        default = 200,
-                        required = True)
+    parser.add_argument('-s', '--size', type=int,
+                        help='Grid size of image to be used. [Default] = 200',
+                        default=200,
+                        required=True)
 
-    parser.add_argument('-o','--output',
-                        help = 'output directory',
-                        required = True)
-    
+    parser.add_argument('-o', '--output',
+                        help='output directory',
+                        required=True)
+
     argv = parser.parse_args()
     inputs = argv.input
     grid_size = argv.size
     targetDir = argv.output
-    
+
     # Taking overlap to be 10%
     overlap = grid_size * 0.1
     args = [inputs, int(grid_size), int(grid_size), int(overlap), targetDir]

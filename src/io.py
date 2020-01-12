@@ -11,123 +11,38 @@ import math
 import json
 import ogr
 import osr
-
-
-class train_data():
-    def __init__(self):
-        self.image_list = []
-        self.label_list = []
-        self.count = 0
-
-        self.path_image = []
-        self.path_label = []
-        self.image_size = []
-        self.max_num_cpu = 50000.00
-        self.max_num_gpu = 6500.00
-        self.image_part_list = []
-        self.label_part_list = []
-
-    # Spliting list if it is greater than max_num_cpu
-    def split_list(self, list):
-
-        length = len(list)
-        part = int(math.ceil(length/self.max_num_cpu))
-
-        return [list[i*length // part: (i+1)*length // part] for i in range(part)]
-
-    # Creating list of data (images and labels)
-    def list_data(self):
-        for root_image, dirs, files in os.walk(self.path_image):
-            for file in files:
-                if file.endswith(".tif") or file.endswith(".tiff"):
-                    if os.path.isfile(os.path.abspath(os.path.join(root_image, file))) == False:
-                        print('File %s not found' %
-                              (os.path.abspath(os.path.join(root_image, file))))
-                        continue
-                    #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(image_lo,file))))
-
-                    """
-                    Only load labels with path is given. Else skip. 
-                    This is because in case of testing, we dont have test labels
-                    """
-                    if len(self.path_label) != 0:
-                        if os.path.isfile(os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))) == False:
-                            print('File %s not found' %
-                                  (os.path.abspath(os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file))))
-                            continue
-                        #    sys.exit('File %s not found'%(os.path.abspath(os.path.join(label_lo,file))))
-                    else:
-                        continue
-
-                    self.image_list.append(os.path.abspath(
-                        os.path.join(root_image, file)))
-
-                    self.label_list.append(os.path.abspath(
-                        os.path.join(os.path.join(self.path_label, os.path.basename(root_image)), file)))
-
-                    self.count = self.count + 1
-
-        # Spliting large number of images into smaller parts to fit in CPU memory
-        self.image_part_list = self.split_list(self.image_list)
-        self.label_part_list = self.split_list(self.label_list)
-        if self.count == 0:
-            sys.exit('No Images found')
-        print('Total number of images found: %s' % (self.count))
-        print('Total number of splits: %s' % (len(self.image_part_list)))
-
-
-# Loading images from list
-def get_image(image_list, image_size):
-    image = []
-    print('Reading Images...')
-    for i in range(len(image_list)):
-        if i % 500 == 0:
-            print('Reading %s, %s' % (str(i), os.path.basename(image_list[i])))
-        image.append(cv2.resize(cv2.imread(os.path.abspath(
-            image_list[i])), (image_size, image_size)))
-
-    return np.array(image)
-
-
-# Loading labels from list
-def get_label(label_list, image_size):
-    label = []
-    print('Reading Labels...')
-    for i in range(len(label_list)):
-        if i % 500 == 0:
-            print('Reading %s, %s' % (str(i), os.path.basename(label_list[i])))
-        gt, gp, s, lb = read_tif(os.path.abspath(label_list[i]))
-        label.append(cv2.resize(lb, (image_size, image_size)))
-
-    return np.array(label)
+import logging
 
 
 # storing geo-referencing information
-def get_geodata(image_list):
-    geotransform_list = []
-    geoprojection_list = []
-    size_list = []
-    name_list = []
-    geodata = {}
-
+def getGeodata(imageMap:dict) -> dict:
+    """
+    Input :
+        imageMap: Hashmap of index as key and path of image as value
+    Output:
+        geoMap: Hashmap of index as key and dict of geographic parameters of the image \
+            corresponding to index
+    """
+    geoMap = {}
+    
     # Storing geo-referencing information
-    for i in range(len(image_list)):
-        geotransform, geoprojection, size, _ = read_tif(image_list[i])
-        geotransform_list.append(geotransform)
-        geoprojection_list.append(geoprojection)
-        name_list.append(os.path.basename(image_list[i]))
-        size_list.append(size)
-
-    geodata = {'name': name_list,
-               'size': size_list,
-               'geotransform': geotransform_list,
-               'geoprojection': geoprojection_list}
-
-    return geodata
+    for i, index in enumerate(imageMap.keys()):
+        geoMap[index] = {}
+        geoTransform, geoProjection, size, _ = read_tif(imageMap[index])
+        geoMap[index]['geoTransform'] = geoTransform
+        geoMap[index]['geoProjection'] = geoProjection
+        geoMap[index]['size'] = size
+        geoMap[index]['path'] = imageMap[index]
+ 
+    return geoMap
 
 
 # Reading raster dataset
-def read_tif(path_tif):
+def read_tif(path_tif:str):
+    """
+    Input: TIF image path
+    Output: geoTransform, geoProjection, size, arr
+    """
     #    array = cv2.imread(tif_file)
     #    driver = gdal.GetDriverByName("GTiff")
     ds = gdal.Open(path_tif)
@@ -138,7 +53,10 @@ def read_tif(path_tif):
     for i in range(num_band):
         band = ds.GetRasterBand(i+1)
         arr = band.ReadAsArray()
+        no_data = band.GetNoDataValue()
+        arr[arr==no_data] = 0
         array[:, :, i] = arr
+    
     size = arr.shape
     geotransform = ds.GetGeoTransform()
     geoprojection = ds.GetProjection()
@@ -163,11 +81,12 @@ def write_tif(path_tif, array, geotransform, geoprojection, size):
     for i in range(depth):
         try:
             arr = array[:, :, i]
-        except:
+        except Exception as e:
             arr = array[:, :]
         arr = cv2.resize(arr, size)
         outdata.GetRasterBand(i+1).WriteArray(arr)
-    # outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want these values transparent
+    # outdata.GetRasterBand(1).SetNoDataValue(-9999)##if you want ... \
+    # ...\ these values transparent
     outdata.FlushCache()  # saves to disk!!
 
 
@@ -200,12 +119,25 @@ def checkres(path, size, output, percent_overlap):
 #        else:
 #            return False
 #    args = [inputs, grid_size, grid_size, overlap, output]
-#    print('Gridding Images ...')
+#    logging.info('Gridding Images ...')
 #    gridding(args)
     return True
 
 
-def test_checkres(path, size, output, percent_overlap):
+def test_checkres(path:str, size:int, output:str, percent_overlap:float) ->None:
+    """
+        Gridding all the image present inside given folders.
+        Griddings are stored in separate folder of each images named after that image itself
+        Input:
+            path: input folder containing all the images
+            size: size of gridding.
+            output: output path of the gridded image
+            percent_overlap: Overlapping need to grid large image. Ex - 10
+        
+        Output:
+            None (Output is automatically save to path_output location given)
+    """
+
     #    inputs = []
     grid_size = size
 
@@ -227,7 +159,7 @@ def test_checkres(path, size, output, percent_overlap):
 #        else:
 #            return False
 #    args = [inputs, grid_size, grid_size, overlap, output]
-#    print('Gridding Images ...')
+#    logging.info('Gridding Images ...')
 #    gridding(args)
     return True
 
@@ -240,9 +172,16 @@ def tojson(dictA, file_json):
 
 
 # Merging all the tiled tif to single tif using gdalbuildvrt and gdaltranslate
-def merge_tile(path_output, list_tif):
+def mergeTile(listTIF: list, path_output:str) ->None:
+    """
+        Input:
+            listTIF: List of path of TIF files to be nerged
+            path_ouput: file location of mergerd data to be saved
+        Output:
+            None (Output is automatically save to path_output location given)
+    """
     # Building VRT
-    temp = gdal.BuildVRT('', list_tif, VRTNodata=-9999)
+    temp = gdal.BuildVRT('', listTIF, VRTNodata=-9999)
 
     # Saving to TIF
     output = gdal.Translate(
@@ -254,11 +193,19 @@ def merge_tile(path_output, list_tif):
     output.FlushCache()
 
     # Success
-    print('Successfully saved to %s' % (path_output))
+    logging.info('Successfully saved to %s' % (path_output))
 
 
 # Converting raster to vector
-def raster2vector(path_raster, path_vector, output_format):
+def raster2vector(path_raster: str, path_output: str, output_format='shp') ->list:
+    """
+        Input:
+            path_raster: Input path of TIF to be processed
+            path_output: Ouput path of TIF to be saved
+            output_format: Format of vector data to be saved
+        Output: 
+            list of vector paths
+    """
     if output_format.lower() == 'kml':
         format = 'KML'
         ext = '.kml'
@@ -276,18 +223,21 @@ def raster2vector(path_raster, path_vector, output_format):
     gdal.UseExceptions()
 
     src_ds = gdal.Open(path_raster)
+    if src_ds is None:
+        logging.error('Unable to open %s' % path_raster)
+        sys.exit(1)
+    
     num_band = src_ds.RasterCount
     temp = []
     for i in range(1, num_band+1):
-        if src_ds is None:
-            print('Unable to open %s' % src_fileName)
-            sys.exit(1)
-
+        
         srcband = src_ds.GetRasterBand(i)
         maskband = srcband.GetMaskBand()
 
         dst_layername = os.path.join(
-            path_vector, os.path.splitext(os.path.basename(path_raster))[0] + '_b' + str(i) + ext)
+            path_output, os.path.splitext(os.path.basename(path_raster))[0] + '_b' + str(i) + ext)
+        
+        checkdir(os.path.dirname(dst_layername))
         temp.append(dst_layername)
         dst_fieldname = 'value'
 
@@ -300,16 +250,23 @@ def raster2vector(path_raster, path_vector, output_format):
         source_srs.ImportFromWkt(src_ds.GetProjectionRef())
 
         dst_layer = dst_ds.GetLayerByName(dst_layername)
+        
         dst_layer = dst_ds.CreateLayer(
             dst_layername, geom_type=ogr.wkbPolygon, srs=source_srs)
-
+        
+        if dst_layer is None:
+            logging.error('Unale to create vector dataset of format: {}'.format(dst_layername))
+        
         fd = ogr.FieldDefn(dst_fieldname, ogr.OFTInteger)
+
         dst_layer.CreateField(fd)
         dst_field = 0
         gdal.Polygonize(srcband, maskband, dst_layer, dst_field, callback=None)
+    
         srcband = None
         src_ds = None
         dst_ds = None
         mask_ds = None
-    print('Vector successfully converted to %s' % (dst_layername))
+        
+    logging.info('Vector successfully converted to %s' % (dst_layername))
     return temp

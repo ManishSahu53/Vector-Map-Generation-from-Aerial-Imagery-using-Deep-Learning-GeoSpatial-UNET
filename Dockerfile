@@ -33,19 +33,7 @@ RUN apt-get -y install python3-gdal
 ADD test.py train.py evaluate.py src /
 
 # Install dependencies for tiling
-RUN pip3 install tensorflow && \
-    pip3 install numpy && \
-    pip3 install pillow && \
-    pip3 install keras && \
-    pip3 install requests && \
-    pip3 install argparse && \
-    pip3 install future
-
-RUN pip3 install fiona && \
-    pip3 install pyproj
-
-RUN pip3 install shapely && \
-    pip3 install pyshp
+RUN pip3 install -r requirements.txt
 
 ENV PYTHONUNBUFFERED = '1'
 

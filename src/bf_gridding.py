@@ -35,6 +35,7 @@ import sys
 from osgeo import gdal
 from osgeo import ogr
 from osgeo import osr
+import logging
 
 progress = gdal.TermProgress_nocb
 
