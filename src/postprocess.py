@@ -1,19 +1,14 @@
 """Post Processing of vector and Raster dataset"""
 import shapefile
 import numpy as np
-from scipy.spatial import ConvexHull
-import fiona
-from fiona.crs import from_epsg
-from shapely.geometry import mapping, Polygon
-from shapely.geometry import MultiPolygon
 import os
-from pyproj import Proj, transform
 import cv2
 from src import io
 import gdal
 import ogr
 import osr
 import config
+import logging
 
 # For Post Processing libraries
 from scipy.ndimage.interpolation import rotate
@@ -22,6 +17,12 @@ from skimage.morphology import skeletonize as skt
 from skimage.feature import peak_local_max
 from skimage.morphology import watershed, remove_small_objects
 from scipy import ndimage as ndi
+from scipy.spatial import ConvexHull
+import fiona
+from fiona.crs import from_epsg
+from shapely.geometry import mapping, Polygon
+from shapely.geometry import MultiPolygon
+from pyproj import Proj, transform
 
 
 # Mininum bounding box/ axis aligned bounding box
@@ -99,7 +100,17 @@ def polygon_area(x, y):
 
 
 # Calculating area of bounding box
-def aabbox(path_shp, path_output):
+def aabbox(path_shp: str, path_output: str) -> None:
+    """
+        It takes shp file as input and convert all the shps to its \
+        Axis Aligned Bounding Boxes
+
+        Input:
+            path_shp: Input path of vector to be processed
+            path_output: Ouput path of SHP to be saved
+        Output:
+            None
+    """
 
     sf = shapefile.Reader(path_shp)
 
@@ -107,8 +118,8 @@ def aabbox(path_shp, path_output):
     fio = fiona.open(path_shp, 'r')
 
     # Extracting coordinates
-    # coord_sys = fio.crs_wkt
-    coord_sys = fio.crs
+    coord_sys = fio.crs_wkt
+    # coord_sys = fio.crs
 
     shapes = sf.shapes()
     num_shp = len(shapes)
@@ -133,7 +144,7 @@ def aabbox(path_shp, path_output):
     }
 
     # Write a new Shapefile
-    with fiona.open(path_output, 'w', crs=coord_sys, driver='ESRI Shapefile',
+    with fiona.open(path_output, 'w',crs=coord_sys, driver='ESRI Shapefile',
                     schema=schema) as c:
         # If there are multiple geometries, put the "for" loop here
         for i in range(len(poly)):
@@ -145,10 +156,19 @@ def aabbox(path_shp, path_output):
 
 
 # Image erosion (N filter) and dilation (N Filter)
-def erosion(path_image, filter, path_output):
+def erosion(path_input: str, filter: int, path_output: str) -> None:
+    """
+        Input :
+            path_input: Input path of TIF to be processed
+            filter: Size Erosion Filer to be used to clean image
+            path_output: Ouput path of TIF to be saved
 
+        output:
+            None (Data is automatically save to given path_output location)
+
+    """
     erode_kernel = np.ones((filter, filter), np.uint8)
-    geotransform, geoprojection, size, arr = io.read_tif(path_image)
+    geotransform, geoprojection, size, arr = io.read_tif(path_input)
     # Image erosion
     erode = cv2.erode(arr, erode_kernel)
 
@@ -170,10 +190,20 @@ def erosion(path_image, filter, path_output):
 
 
 # Skeletonize raster dataset
-def skeletonize(path_image, path_output):
+def skeletonize(path_input: str, path_output: str) -> None:
+    """
+        It takes binary raster as input and mark its central line.
+        This central line is represents singel line raster instead of thick line.
+
+        Input:
+            path_input: Input path of binary raster to be processed
+            path_output: Output path of raster to be saved
+         Output:
+            None (Data is automatically save to given path_output location)
+    """
     filter = config.skeletonize_filter
 
-    geotransform, geoprojection, size, arr = io.read_tif(path_image)
+    geotransform, geoprojection, size, arr = io.read_tif(path_input)
     """Array input must be binary
     Output array is also binary
     """
@@ -188,9 +218,16 @@ def skeletonize(path_image, path_output):
 
 
 # Watershed Segmentation
-def waterseg(path_image, filter, path_output):
-
-    geotransform, geoprojection, size, array = io.read_tif(path_image)
+def watershedSegmentation(path_input: str, filter: int, path_output: str) -> None:
+    """
+        Input: 
+            path_input: Input path of TIF to be processed
+            filter: Size Erosion Filer to be used to clean image
+            path_output: Ouput path of TIF to be saved
+        Output:
+            None (Output is automatically save to path_output location given)
+    """
+    geotransform, geoprojection, size, array = io.read_tif(path_input)
     """ Minimum distance between two objects is 7.5m
         distance = 5/cell_size
     """
@@ -231,11 +268,19 @@ def waterseg(path_image, filter, path_output):
             labels = watershed(-D, markers, mask=arr)
     logging.info('Saving watershed segmentation to %s' % (path_output))
     io.write_tif(path_output, labels, geotransform, geoprojection, size)
-    return path_output
 
 
 # Calculating area of bounding box
-def simplify_polygon(path_shp, para, path_output):
+def simplify_polygon(path_shp: str, parameter: float, path_output: str) -> None:
+    """
+        Input:
+            path_shp: Input path of vector data to be processed
+            parameter: Parameter of smoothness offset in meters
+            path_output: Ouput path of TIF to be saved
+        Ouptut:
+            None (Output is automatically save to path_output location given)
+    """
+
     gdal.UseExceptions()
     ogr.UseExceptions()
 
@@ -252,7 +297,7 @@ def simplify_polygon(path_shp, para, path_output):
         dst_layer.CreateFeature(dst_feat)
         dst_layer.SyncToDisk()
 
-    def multipoly2poly(src_lyr, para, dst_layer):
+    def multipoly2poly(src_lyr, parameter, dst_layer):
         count = 0
         for src_feat in src_lyr:
             if src_feat.GetField(0) > 0:
@@ -260,10 +305,10 @@ def simplify_polygon(path_shp, para, path_output):
                 geom = src_feat.GetGeometryRef()
                 if geom.GetGeometryName() == 'MULTIPOLYGON':
                     for geom_part in geom:
-                        x = geom_part.SimplifyPreserveTopology(para)
+                        x = geom_part.SimplifyPreserveTopology(parameter)
                         addPolygon(x.ExportToWkb(), dst_layer, count)
                 else:
-                    x = geom.SimplifyPreserveTopology(para)
+                    x = geom.SimplifyPreserveTopology(parameter)
                     addPolygon(x.ExportToWkb(), dst_layer, count)
             else:
                 continue
@@ -297,4 +342,4 @@ def simplify_polygon(path_shp, para, path_output):
     dst_layer.CreateField(areaField)
 
     # Simplification of polygons
-    multipoly2poly(src_lyr, para, dst_layer)
+    multipoly2poly(src_lyr, parameter, dst_layer)

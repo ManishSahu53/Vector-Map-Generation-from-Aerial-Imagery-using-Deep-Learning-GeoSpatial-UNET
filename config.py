@@ -21,6 +21,9 @@ image_ext2 = '.tiff'
 # Post Processing
 skeletonize_filter = 5
 minimum_distance_watershed = 7.5  # 7.5m away buildings
+simplify_parameter = 0.7 # 0.7m can be adjusted while simplifying vectors
+erosion_filter = 3
+watershed_neighbour = 4 # 4 or 8
 
 """
 ####################### DO NOT CHANGE BEYOND THIS ###########################

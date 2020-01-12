@@ -5,6 +5,7 @@ import config
 import cv2
 import os
 from src import io
+import logging
 
 
 class DataGenerator(keras.utils.Sequence):
@@ -12,7 +13,7 @@ class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, list_IDs, imageMap, labelMap,
                  batch_size, n_classes, image_channels,
-                 label_channels, image_size, shuffle=True):
+                 label_channels, image_size, prediction=False, shuffle=True):
         'Initialization'
         self.list_IDs = list_IDs
         self.labelMap = labelMap
@@ -23,12 +24,12 @@ class DataGenerator(keras.utils.Sequence):
         self.label_channels = label_channels
         self.image_size = image_size
         self.shuffle = shuffle
-
+        self.prediction = prediction
         self.on_epoch_end()
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(np.floor(len(self.list_IDs) / self.batch_size))
+        return int(np.ceil(len(self.list_IDs) / self.batch_size))
 
     def __getitem__(self, index):
         'Generate one batch of data'
@@ -38,9 +39,13 @@ class DataGenerator(keras.utils.Sequence):
         # Find list of IDs
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
         # Generate data
-        X, y = self.__data_generation(list_IDs_temp)
+        if self.prediction is True:
+            X = self.__data_generation(list_IDs_temp)
+            return X
 
-        return X, y
+        elif self.prediction is False:
+            X, y = self.__data_generation(list_IDs_temp)
+            return X, y
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
@@ -75,23 +80,37 @@ class DataGenerator(keras.utils.Sequence):
         # Initialization
         # print('batch_size: {}, image_size: {}, image_channels: {}'.format(
         #       self.batch_size, self.image_size, self.image_channels))
-        x = np.empty((self.batch_size, self.image_size,
-                      self.image_size, self.image_channels), dtype=np.float32)
+        if self.prediction is False:
+            x = np.empty((self.batch_size, self.image_size,
+                        self.image_size, self.image_channels), dtype=np.float32)
 
-        y = np.empty((self.batch_size, self.image_size,
-                      self.image_size, self.label_channels), dtype=np.float32)
+            y = np.empty((self.batch_size, self.image_size,
+                        self.image_size, self.label_channels), dtype=np.float32)
 
-        # Generate data
-        for i, ID in enumerate(list_IDs_temp):
-            # Reading images and storing it
-            image_arr = self.read_image(self.imageMap[ID])
-            x[i] = image_arr
-            y[i, :, :, 0] = self.read_label(self.labelMap[ID])
+            # Generate data
+            for i, ID in enumerate(list_IDs_temp):
+                # Reading images and storing it
+                image_arr = self.read_image(self.imageMap[ID])
+                x[i] = image_arr
+                y[i, :, :, 0] = self.read_label(self.labelMap[ID])
+            
+            return x, y
+        
+        # For prediction we dont have labeled data so Y doesn't exist
+        elif self.prediction is True:
+            x = np.empty((self.batch_size, self.image_size,
+                        self.image_size, self.image_channels), dtype=np.float32)
+        
+            # Generate data
+            for i, ID in enumerate(list_IDs_temp):
+                # Reading images and storing it
+                image_arr = self.read_image(self.imageMap[ID])
+                x[i] = image_arr
 
-        return x, y
+            return x
 
 
-# Generating data map
+# Generating Training data map
 class getData():
     def __init__(self, path_tile_image, path_tile_label):
         self.path_tiled_image = path_tile_image
@@ -120,3 +139,35 @@ class getData():
                     continue
 
         return key, tiled_image, tiled_label
+
+
+# Generating Testing data map
+class getTestingData():
+    def __init__(self, path_tile_image):
+        self.path_tiled_image = path_tile_image
+
+    def getList(self):
+        tiled_image = {}
+        key = []
+        index = 0
+
+        for root, dirs, files in os.walk(self.path_tiled_image):
+            for file in files:
+                # If .TIF or .TIFF file found then
+                if file.endswith(config.image_ext1) or \
+                        file.endswith(config.image_ext2):
+
+                    key.append(index)
+                    tiled_image[index] = os.path.join(self.path_tiled_image,
+                                                      file)
+                    index += 1
+
+                else:
+                    continue
+        
+        if len(key) == 0:
+            msg = 'Unable to get any TIF/TIFF data files in {}'.format(self.path_tiled_image)
+            logging.error(msg)
+            raise(msg)
+        
+        return key, tiled_image
