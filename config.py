@@ -6,6 +6,11 @@ path_output = 'model/exp1'
 path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
 
+# generateDatset Parameters
+minResolution=0.1 # meters
+maxResolution=1 # meters
+step=0.1 # meters
+
 # Model Parameters
 num_image_channels = 3
 num_label_channels = 1
@@ -15,8 +20,7 @@ grid_size = 200
 epoch = 20
 overlap = 10
 batch = 32
-image_ext1 = '.tif'
-image_ext2 = '.tiff'
+image_ext = ['.tif', '.tiff', '.vrt']
 
 # Post Processing
 skeletonize_filter = 5
@@ -38,6 +42,10 @@ path_logs = os.path.join(path_output, 'log')
 path_tensorboard_log = os.path.join(path_logs, 'tensorboard')
 
 # Path Outputs
+path_vrt = os.path.join(path_output, 'vrt')
+path_image_vrt = os.path.join(path_vrt, 'image')
+path_label_vrt = os.path.join(path_vrt, 'label')
+
 path_model = os.path.join(path_output, 'model')
 path_weight = os.path.join(path_output, 'weight')
 path_prediction = os.path.join(path_output, 'predicted')
@@ -56,3 +64,6 @@ path_vali_tiled = os.path.join(path_vali_output, 'tiled')
 path_vali_tiled_image = os.path.join(path_vali_tiled, 'image')
 path_vali_tiled_label = os.path.join(path_vali_tiled, 'label')
 
+path_vali_vrt = os.path.join(path_vali_output, 'vrt')
+path_vali_image_vrt = os.path.join(path_vali_vrt, 'image')
+path_vali_label_vrt = os.path.join(path_vali_vrt, 'label')

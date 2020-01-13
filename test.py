@@ -146,8 +146,7 @@ else:
 # Iterating over all the files
 for root, dirs, files in os.walk(path_data):
     for file in files:
-        if file.endswith(config.image_ext1) or \
-                file.endswith(config.image_ext2):
+        if file.endswith(tuple(config.image_ext)):
 
             temp_path_data = os.path.join(root, file)
 
