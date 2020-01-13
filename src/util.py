@@ -96,3 +96,7 @@ def set_logger(path_log):
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(logging.Formatter('%(message)s'))
         logger.addHandler(stream_handler)
+
+
+def getNamenoExt(path_tif):
+    return (os.path.splitext(os.path.basename(path_tif))[0])    

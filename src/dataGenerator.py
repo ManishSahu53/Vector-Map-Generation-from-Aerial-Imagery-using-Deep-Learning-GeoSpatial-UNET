@@ -125,8 +125,7 @@ class getData():
         for root, dirs, files in os.walk(self.path_tiled_image):
             for file in files:
                 # If .TIF or .TIFF file found then
-                if file.endswith(config.image_ext1) or \
-                        file.endswith(config.image_ext2):
+                if file.endswith(tuple(config.image_ext)):
 
                     key.append(index)
                     tiled_image[index] = os.path.join(self.path_tiled_image,
@@ -154,8 +153,7 @@ class getTestingData():
         for root, dirs, files in os.walk(self.path_tiled_image):
             for file in files:
                 # If .TIF or .TIFF file found then
-                if file.endswith(config.image_ext1) or \
-                        file.endswith(config.image_ext2):
+                if file.endswith(tuple(config.image_ext)):
 
                     key.append(index)
                     tiled_image[index] = os.path.join(self.path_tiled_image,
