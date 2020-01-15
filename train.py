@@ -31,11 +31,18 @@ util.set_logger(os.path.join(config.path_logs, 'train.log'))
 parser = argparse.ArgumentParser(
     description='See description below to see all available options')
 
-parser.add_argument('-p', '--pretrained',
+parser.add_argument('-pt', '--pretrained',
                     help='Continuining training from the given model. \
                           [Default] is no model given',
                     default=None,
                     type=str,
+                    required=False)
+
+parser.add_argument('-w', '--weight',
+                    help='If model provided is Model Weight or not. \
+                        True - It is Weight, False- Complete Model',
+                    default=None,
+                    type=bool,
                     required=False)
 
 # Parsing arguments
@@ -109,9 +116,26 @@ logging.info('num_epoch: {}'.format(config.epoch))
 
 unet_model = model.unet(config.image_size)
 
-# Listing images
-if args.pretrained is not None:
-    unet_model.load_model(args.pretrained)
+# loading model from model file or  weights file
+logging.info('Loading trained model')
+
+if args.weight is True:
+    unet_model = model.unet(config.image_size)
+    try:
+        unet_model.load_weights(args.pretrained)
+    except Exception as e:
+        msg = 'Unable to load model weights: {}'.format(args.pretrained)
+        logging.error(msg)
+        raise('{}. Error : {}'.format(msg, e))
+
+elif args.weight is False:
+    try:
+        unet_model = load_model(args.pretrained, custom_objects={
+            'dice_coef': metric.dice_coef, 'jaccard_coef': metric.jaccard_coef})
+    except Exception as e:
+        msg = 'Unable to load model: {}'.format(args.pretrained)
+        logging.error(msg)
+        raise('{}. Error : {}'.format(msg, e))
 
 # Compiling model
 unet_model.compile(optimizer=Adam(lr=1e-4),
@@ -130,12 +154,12 @@ csv_logger = keras.callbacks.CSVLogger(
 path_save_callback = os.path.join(
     config.path_weight, 'weights.{epoch:02d}-{val_loss:.2f}.hdf5')
 saving_model = keras.callbacks.ModelCheckpoint(path_save_callback,
-                                                         monitor='val_loss',
-                                                         verbose=0,
-                                                         save_best_only=False,
-                                                         save_weights_only=True,
-                                                         mode='auto',
-                                                         period=5)
+                                               monitor='val_loss',
+                                               verbose=0,
+                                               save_best_only=False,
+                                               save_weights_only=True,
+                                               mode='auto',
+                                               period=5)
 
 # fit the unet with the actual image, train_image
 # and the output, train_label

@@ -4,7 +4,7 @@ import config
 from src import util
 import logging
 
-
+util.check_dir(config.path_logs)
 util.set_logger(os.path.join(config.path_logs, 'generateMutiRes.log'))
 
 

@@ -2,14 +2,14 @@ import os
 
 # Path Inputs
 path_input = 'data/Buildings/train'
-path_output = 'model/exp1'
+path_output = 'model/exp2'
 path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
 
 # generateDatset Parameters
-minResolution=0.1 # meters
-maxResolution=1 # meters
-step=0.1 # meters
+minResolution = 0.1  # meters
+maxResolution = 1  # meters
+step = 0.1  # meters
 
 # Model Parameters
 num_image_channels = 3
@@ -17,17 +17,17 @@ num_label_channels = 1
 validation_split = 0.15
 image_size = 200
 grid_size = 200
-epoch = 20
+epoch = 30
 overlap = 10
-batch = 32
+batch = 16
 image_ext = ['.tif', '.tiff', '.vrt']
 
 # Post Processing
 skeletonize_filter = 5
 minimum_distance_watershed = 7.5  # 7.5m away buildings
-simplify_parameter = 0.7 # 0.7m can be adjusted while simplifying vectors
+simplify_parameter = 0.7  # 0.7m can be adjusted while simplifying vectors
 erosion_filter = 3
-watershed_neighbour = 4 # 4 or 8
+watershed_neighbour = 4  # 4 or 8
 
 """
 ####################### DO NOT CHANGE BEYOND THIS ###########################
