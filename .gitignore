@@ -17,6 +17,7 @@ __*/
 *.tif
 *.tiff
 *.h5
+*.vrt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
