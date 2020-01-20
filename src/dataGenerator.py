@@ -81,10 +81,10 @@ class DataGenerator(keras.utils.Sequence):
         # print('batch_size: {}, image_size: {}, image_channels: {}'.format(
         #       self.batch_size, self.image_size, self.image_channels))
         if self.prediction is False:
-            x = np.empty((self.batch_size, self.image_size,
+            x = np.zeros((self.batch_size, self.image_size,
                         self.image_size, self.image_channels), dtype=np.float32)
 
-            y = np.empty((self.batch_size, self.image_size,
+            y = np.zeros((self.batch_size, self.image_size,
                         self.image_size, self.label_channels), dtype=np.float32)
 
             # Generate data
@@ -98,7 +98,7 @@ class DataGenerator(keras.utils.Sequence):
         
         # For prediction we dont have labeled data so Y doesn't exist
         elif self.prediction is True:
-            x = np.empty((self.batch_size, self.image_size,
+            x = np.zeros((self.batch_size, self.image_size,
                         self.image_size, self.image_channels), dtype=np.float32)
         
             # Generate data
@@ -125,8 +125,7 @@ class getData():
         for root, dirs, files in os.walk(self.path_tiled_image):
             for file in files:
                 # If .TIF or .TIFF file found then
-                if file.endswith(config.image_ext1) or \
-                        file.endswith(config.image_ext2):
+                if file.endswith(tuple(config.image_ext)):
 
                     key.append(index)
                     tiled_image[index] = os.path.join(self.path_tiled_image,
@@ -154,8 +153,7 @@ class getTestingData():
         for root, dirs, files in os.walk(self.path_tiled_image):
             for file in files:
                 # If .TIF or .TIFF file found then
-                if file.endswith(config.image_ext1) or \
-                        file.endswith(config.image_ext2):
+                if file.endswith(tuple(config.image_ext)):
 
                     key.append(index)
                     tiled_image[index] = os.path.join(self.path_tiled_image,
