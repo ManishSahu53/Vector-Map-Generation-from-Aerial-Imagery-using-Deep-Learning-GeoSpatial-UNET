@@ -2,7 +2,7 @@ import os
 
 # Path Inputs
 path_input = 'data/Buildings/train'
-path_output = 'model/exp2'
+path_output = 'model/exp3'
 path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
 
