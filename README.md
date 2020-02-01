@@ -65,7 +65,7 @@ There are few steps that need to be followed to train on custom dataset. All the
 
 1. **Prepare Training Dataset** - All the training dataset should be geo referenced. Folder should contain **image** and **label**. All the TIFs should be kept inside of these 2 folders. RGB and Label image should be of **SAME NAME**. Example - train/image/1.tif -- train/label/1.tif  
 
-2. Edit [config.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/config.py) -  Change the *path_input*, *path_output*, *path_validation* etc. ALl the TIF files are to kept be these path_input, path_validation folders.
+2. Edit [config.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/config.py) -  Change the *path_input*, *path_output*, *path_validation* etc. All the TIF files are to be kept in these path_input, path_validation folders.
 
 3. Run [generateMultiRes.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/generateMultiRes.py) - This is used to generate multiple resolutions of TIFs in VRT formats. This converts TIFs upto 1 meter resolution. Example - If the TIF are of 0.1m resoultion then this will make vrts of 0.1, 0.2, 0.3, ... 1m resolutions. This useful to make u-net robust to multiple resolution dataset.
 
@@ -90,7 +90,7 @@ If tiling is already done, then skip this step.
 ```
 python test.py [-h] [--data] [--skipGridding] [--pretrained] [--weight] [--output]
 
---skipGridding If skipping grididing while testing. [Default] False
+--skipGridding If grididing/tiling is already done then use it to skip the step. [Default] False
 
 --data Input Data folder where TIF files are stored
 --pretrained Path of pretrained complete model or weight file. Use -w flag to mark it as weight or complete model
