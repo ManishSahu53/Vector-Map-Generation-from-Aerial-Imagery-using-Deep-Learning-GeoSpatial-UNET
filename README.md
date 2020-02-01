@@ -51,10 +51,10 @@ Raster obtained from the watershed segmentation is vectorized using gdal/ogr lib
 
 
 ### RESULTS
-1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/LC.png =50x50)
-2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Africa.png  =50x50)
-3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Planned.png =50x50)
-4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png =50x50)
+1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/LC.png?thumbnail))
+2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Africa.png?thumbnail))
+3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Planned.png?thumbnail))
+4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png?thumbnail))
 
 ### Pretrained Weights
 Here is pretrained weight for buildings (https://drive.google.com/file/d/1scRiEocm7kyngmy3-OWW796gYjvBkcf_/view)
