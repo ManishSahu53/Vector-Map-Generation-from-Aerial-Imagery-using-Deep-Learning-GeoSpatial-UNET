@@ -14,7 +14,7 @@ from keras.optimizers import Adam
 from keras import backend as K
 from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.models import load_model
-from src import metric, model, io, util, dataGenerator
+from src import metric, model, io, util, dataGenerator, loss
 from src.bf_grid import bf_grid
 import config
 
@@ -76,19 +76,22 @@ configuration = {}
 
 # Training Data Set
 training_dataList = dataGenerator.getData(
-    path_tile_image=config.path_tiled_image, path_tile_label=config.path_tiled_label)
+    path_tile_image=config.path_tiled_image,
+    path_tile_label=config.path_tiled_label)
 
 training_list_ids, training_imageMap, training_labelMap = training_dataList.getList()
 
 # Validation Data Set
 validation_dataList = dataGenerator.getData(
-    path_tile_image=config.path_vali_tiled_image, path_tile_label=config.path_vali_tiled_label)
+    path_tile_image=config.path_vali_tiled_image,
+    path_tile_label=config.path_vali_tiled_label)
 
 validation_list_ids, validation_imageMap, validation_labelMap = validation_dataList.getList()
 
 # Training DataGenerator
 training_generator = dataGenerator.DataGenerator(
-    list_IDs=training_list_ids, imageMap=training_imageMap, labelMap=training_labelMap,
+    list_IDs=training_list_ids, imageMap=training_imageMap,
+    labelMap=training_labelMap,
     batch_size=config.batch, n_classes=None,
     image_channels=config.num_image_channels,
     label_channels=config.num_label_channels,
@@ -96,7 +99,8 @@ training_generator = dataGenerator.DataGenerator(
 
 # Validation DataGenerator
 validation_generator = dataGenerator.DataGenerator(
-    list_IDs=validation_list_ids, imageMap=validation_imageMap, labelMap=validation_labelMap,
+    list_IDs=validation_list_ids, imageMap=validation_imageMap,
+    labelMap=validation_labelMap,
     batch_size=config.batch, n_classes=None,
     image_channels=config.num_image_channels,
     label_channels=config.num_label_channels,
@@ -139,7 +143,7 @@ elif args.weight is False:
 
 # Compiling model
 unet_model.compile(optimizer=Adam(lr=1e-4),
-                   loss='binary_crossentropy',
+                   loss=loss.weighted_binary_crossentropy,  # 'binary_crossentropy',  #
                    metrics=[metric.dice_coef, metric.jaccard_coef])
 
 # create a UNet (512,512)

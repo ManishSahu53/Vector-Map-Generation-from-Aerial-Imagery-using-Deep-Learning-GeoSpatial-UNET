@@ -2,7 +2,10 @@ import os
 
 # Path Inputs
 path_input = 'data/Buildings/train'
-path_output = 'model/exp2'
+# Inside this folder, should contain an image and label folder \
+# Example - train/image, train/label
+
+path_output = 'model/exp3'
 path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
 
@@ -19,7 +22,7 @@ image_size = 200
 grid_size = 200
 epoch = 30
 overlap = 10
-batch = 16
+batch = 32
 image_ext = ['.tif', '.tiff', '.vrt']
 
 # Post Processing

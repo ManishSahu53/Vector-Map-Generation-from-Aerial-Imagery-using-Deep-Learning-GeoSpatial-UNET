@@ -51,32 +51,51 @@ Raster obtained from the watershed segmentation is vectorized using gdal/ogr lib
 
 
 ### RESULTS
-1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/LC.png)
-2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Africa.png)
-3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Planned.png)
-4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png)
+1. ![Small_village_in_Maharashtra_India](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/LC.png?thumbnail))
+2. ![Dense_populated_area_in_Africa](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Africa.png?thumbnail))
+3. ![Planned_colony](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Planned.png?thumbnail))
+4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png?thumbnail))
 
 ### Pretrained Weights
 Here is pretrained weight for buildings (https://drive.google.com/file/d/1scRiEocm7kyngmy3-OWW796gYjvBkcf_/view)
 
-## How to use
+## Tutorial
+### How to train on custom dataset
+There are few steps that need to be followed to train on custom dataset. All the files names and datasets are to be entered in configuration file: [config.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/config.py). All the functions take config as input and take the dataset/parameters from it.
+
+1. **Prepare Training Dataset** - All the training dataset should be geo referenced. Folder should contain **image** and **label**. All the TIFs should be kept inside of these 2 folders. RGB and Label image should be of **SAME NAME**. Example - train/image/1.tif -- train/label/1.tif  
+
+2. Edit [config.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/config.py) -  Change the *path_input*, *path_output*, *path_validation* etc. All the TIF files are to be kept in these path_input, path_validation folders.
+
+3. Run [generateMultiRes.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/generateMultiRes.py) - This is used to generate multiple resolutions of TIFs in VRT formats. This converts TIFs upto 1 meter resolution. Example - If the TIF are of 0.1m resoultion then this will make vrts of 0.1, 0.2, 0.3, ... 1m resolutions. This useful to make u-net robust to multiple resolution dataset.
+
+4. Run [generateDataset.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/generateDataset.py) - This takes the VRTs generated above and do tiling of the images since TIFs are generally of very high resolutions and cannot be fit into memory. This will large disk space and all the data will be written into *path_output* given in the config.py file.
+
+5. Run [train.py](https://github.com/ManishSahu53/geospatial_unet/blob/master/train.py) - Now training can start. If there is any pretrained weight or model then train.py can take it. Just pass the flag --weight False, if the pretrained is complete model file.
+
+Commands :
 ```
-python3 train.py [-h] -d DATA [-s SIZE] [-c CLASSES] [-sg SKIP_GRIDDING]
+1. python generateMultiRes.py
+
+If tiling is already done, then skip this step.
+2. python generateDataset.py
+
+3.1 python train.py --pretrained weight.h5 --weight True
+                        or 
+3.2 python train.py --pretrained model.h5 --weight False
 ```
 
-See description below to see all available options
-optional arguments:
-```
-  -h, --help            show this help message and exit
-  -d DATA, --data DATA  Input directory containing images and labels
-  -s SIZE, --size SIZE  Input size of image to be used. [Default] = 200
-  -c CLASSES, --classes CLASSES
-                        Input number of classes.[Default] = 1
-  -sg SKIP_GRIDDING, --skip_gridding SKIP_GRIDDING
-                        If gridding is already done then skip it. [Default] is
-                        No = 0
-```
+### How to do generate results
 
 ```
-python3 test.py [-h] -d DATA [-s SIZE] [-c CLASSES] [-sg SKIP_GRIDDING]
+python test.py [-h] [--data] [--skipGridding] [--pretrained] [--weight] [--output]
+
+--skipGridding If grididing/tiling is already done then use it to skip the step. [Default] False
+
+--data Input Data folder where TIF files are stored
+--pretrained Path of pretrained complete model or weight file. Use -w flag to mark it as weight or complete model
+
+--weight If model provided is Model Weight or not. 
+True - It is Weight, False- Complete Model
+--output Output Data folder where TIF 
 ```
