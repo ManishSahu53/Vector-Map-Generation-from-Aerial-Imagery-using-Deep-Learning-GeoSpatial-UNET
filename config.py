@@ -19,7 +19,7 @@ image_size = 200
 grid_size = 200
 epoch = 30
 overlap = 10
-batch = 16
+batch = 32
 image_ext = ['.tif', '.tiff', '.vrt']
 
 # Post Processing

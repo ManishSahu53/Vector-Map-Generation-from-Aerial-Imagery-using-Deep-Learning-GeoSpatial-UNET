@@ -12,7 +12,7 @@ def weighted_binary_crossentropy(y_true, y_pred):
     y_true = K.cast(y_true, y_pred.dtype)
 
     # Scaling Distance Transform X 10 since values are too small
-    loss = K.binary_crossentropy(y_true, y_pred[:, :, 0])
-    loss = loss * weight
+    loss = K.binary_crossentropy(y_true, y_pred[:, :, :, 0] + 0.000001)
+    loss = K.mean(loss * weight, axis=(1, 2))
     return loss
     # keras.losses.binary_crossentropy(y_true, y_pred, from_logits=False, label_smoothing=0)
