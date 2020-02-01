@@ -2,6 +2,9 @@ import os
 
 # Path Inputs
 path_input = 'data/Buildings/train'
+# Inside this folder, should contain an image and label folder \
+# Example - train/image, train/label
+
 path_output = 'model/exp3'
 path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
