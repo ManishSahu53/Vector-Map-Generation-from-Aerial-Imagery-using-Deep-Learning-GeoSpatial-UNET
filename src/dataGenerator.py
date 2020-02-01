@@ -6,6 +6,7 @@ import cv2
 import os
 from src import io
 import logging
+from scipy import ndimage as ndi
 
 
 class DataGenerator(keras.utils.Sequence):
@@ -13,7 +14,8 @@ class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, list_IDs, imageMap, labelMap,
                  batch_size, n_classes, image_channels,
-                 label_channels, image_size, prediction=False, shuffle=True):
+                 label_channels, image_size, prediction=False,
+                 shuffle=True):
         'Initialization'
         self.list_IDs = list_IDs
         self.labelMap = labelMap
@@ -60,7 +62,7 @@ class DataGenerator(keras.utils.Sequence):
         """
         gt, gp, size, arr = io.read_tif(path_image)
         # Taking RGB only and skipping alpha band
-        arr = arr[:,:,:3]
+        arr = arr[:, :, :3]
         # print('Maximum Value Image: {}'.format(np.max(arr)))
         return cv2.resize(arr, (self.image_size, self.image_size))
 
@@ -73,7 +75,7 @@ class DataGenerator(keras.utils.Sequence):
         arr[arr == 255] = 1
         # print('Maximum Value Label: {}'.format(np.max(arr)))
         return cv2.resize(arr, (self.image_size, self.image_size))
-    
+
     def __data_generation(self, list_IDs_temp):
         'Generates data containing batch_size samples'
         # X : (n_samples, *dim, n_channels)
@@ -81,11 +83,11 @@ class DataGenerator(keras.utils.Sequence):
         # print('batch_size: {}, image_size: {}, image_channels: {}'.format(
         #       self.batch_size, self.image_size, self.image_channels))
         if self.prediction is False:
-            x = np.empty((self.batch_size, self.image_size,
-                        self.image_size, self.image_channels), dtype=np.float32)
+            x = np.zeros((self.batch_size, self.image_size,
+                          self.image_size, self.image_channels), dtype=np.float32)
 
-            y = np.empty((self.batch_size, self.image_size,
-                        self.image_size, self.label_channels), dtype=np.float32)
+            y = np.zeros((self.batch_size, self.image_size,
+                          self.image_size, self.label_channels + 1), dtype=np.float32)
 
             # Generate data
             for i, ID in enumerate(list_IDs_temp):
@@ -93,14 +95,20 @@ class DataGenerator(keras.utils.Sequence):
                 image_arr = self.read_image(self.imageMap[ID])
                 x[i] = image_arr
                 y[i, :, :, 0] = self.read_label(self.labelMap[ID])
-            
+
+                # Creating weight matrix
+                y_true_dt = ndi.distance_transform_edt(y[i, :, :, 0])
+                y_true_dt[y_true_dt == 0] = -99
+                # Scaling Distance Transform X 10 since values are too small
+                y[i, :, :, -1] = 10/y_true_dt + 1
+
             return x, y
-        
+
         # For prediction we dont have labeled data so Y doesn't exist
         elif self.prediction is True:
-            x = np.empty((self.batch_size, self.image_size,
-                        self.image_size, self.image_channels), dtype=np.float32)
-        
+            x = np.zeros((self.batch_size, self.image_size,
+                          self.image_size, self.image_channels), dtype=np.float32)
+
             # Generate data
             for i, ID in enumerate(list_IDs_temp):
                 # Reading images and storing it
@@ -162,10 +170,11 @@ class getTestingData():
 
                 else:
                     continue
-        
+
         if len(key) == 0:
-            msg = 'Unable to get any TIF/TIFF data files in {}'.format(self.path_tiled_image)
+            msg = 'Unable to get any TIF/TIFF data files in {}'.format(
+                self.path_tiled_image)
             logging.error(msg)
             raise(msg)
-        
+
         return key, tiled_image

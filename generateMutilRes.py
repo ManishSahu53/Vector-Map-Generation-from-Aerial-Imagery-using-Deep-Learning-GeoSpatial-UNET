@@ -4,7 +4,7 @@ import config
 from src import util
 import logging
 
-
+util.check_dir(config.path_logs)
 util.set_logger(os.path.join(config.path_logs, 'generateMutiRes.log'))
 
 
@@ -33,7 +33,8 @@ logging.info('Iterating Training data in folder: {}'.format(config.path_image))
 for root, dirs, files in os.walk(config.path_image):
     for file in files:
         if file.endswith(tuple(config.image_ext)):
-
+            logging.info('Processing : {}'.format(os.path.join(
+                    root, file)))
             currentResolution = getRes(os.path.join(root, file))
 
             listResolution = list(drange(
@@ -60,14 +61,10 @@ for root, dirs, files in os.walk(config.path_image):
                 util.check_dir(os.path.dirname(path_image_output))
                 util.check_dir(os.path.dirname(path_label_output))
 
-                logging.info('Processing : {}'.format(os.path.join(
-                    root, file)))
                 # Creating VRT of input image
                 gdal.Warp(path_image_output, os.path.abspath(os.path.join(
                     root, file)), options=gdalOption)
 
-                logging.info('Processing : {}'.format(os.path.join(
-                    config.path_label, file)))
                 # Creating VRT of label image
                 gdal.Warp(path_label_output,  os.path.abspath(os.path.join(
                     config.path_label, file)), options=gdalOption)
@@ -78,7 +75,8 @@ logging.info('Iterating Validation data in folder: {}'.format(config.path_vali_i
 for root, dirs, files in os.walk(config.path_vali_image):
     for file in files:
         if file.endswith(tuple(config.image_ext)):
-
+            logging.info('Processing : {}'.format(os.path.join(
+                    root, file)))
             currentResolution = getRes(os.path.join(root, file))
 
             listResolution = list(drange(
@@ -105,14 +103,11 @@ for root, dirs, files in os.walk(config.path_vali_image):
                 util.check_dir(os.path.dirname(path_vali_image_output))
                 util.check_dir(os.path.dirname(path_vali_label_output))
 
-                logging.info('Processing : {}'.format(os.path.join(
-                    root, file)))
+
                 # Creating VRT of input image
                 gdal.Warp(path_vali_image_output, os.path.abspath(os.path.join(
                     root, file)), options=gdalOption)
 
-                logging.info('Processing : {}'.format(os.path.join(
-                    config.path_label, file)))
                 # Creating VRT of label image
                 gdal.Warp(path_vali_label_output,  os.path.abspath(os.path.join(
                     config.path_vali_label, file)), options=gdalOption)

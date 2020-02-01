@@ -7,6 +7,7 @@ Multiclass loss
 https://stats.stackexchange.com/questions/255465/accuracy-vs-jaccard-for-multiclass-problem/256140
 """
 
+
 def jaccard_distance(y_true, y_pred):
     smooth = 1
     """
@@ -28,16 +29,21 @@ def jaccard_distance(y_true, y_pred):
 
 
 def dice_coef(y_true, y_pred):
+
+    y_true = y_true[:, :, :, 0:1]
     smooth = 1.0
     intersection = K.sum(y_true*y_pred)
     deno = K.sum(y_true) + K.sum(y_pred)
     return 2*intersection / (deno + smooth)
+
 
 def dice_coef_loss(y_true, y_pred):
     return 1.0 - dice_coef(y_true, y_pred)
 
 
 def jaccard_coef(y_true, y_pred):
+
+    y_true = y_true[:, :, :, 0:1]
     '''Average jaccard coefficient per batch.'''
     smooth = 1.0
     intersection = K.sum(y_true*y_pred)
