@@ -20,7 +20,7 @@ from src import util
 from src import bf_grid
 from src import metric
 from src import dataGenerator
-from src import model
+from src import defaultModel
 
 import config
 
@@ -125,7 +125,7 @@ logging.info('bbox path is %s' % (path_bbox))
 logging.info('Loading trained model')
 
 if args.weight is True:
-    unet_model = model.unet(config.image_size)
+    unet_model = defaultModel.unet(config.image_size)
     try:
         unet_model.load_weights(args.pretrained)
     except Exception as e:

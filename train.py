@@ -9,13 +9,13 @@ import random
 
 # Importing Keras
 import tensorflow as tf
-import keras
-from keras.optimizers import Adam
-from keras import backend as K
-from keras.callbacks import ModelCheckpoint, TensorBoard
-from keras.models import load_model
-from src import metric, model, io, util, dataGenerator, loss
+from tensorflow import keras
+from tensorflow.keras.models import load_model
+
+from src import metric, defaultModel, io, util, dataGenerator, loss
 from src.bf_grid import bf_grid
+from src.model.builders import model_builder
+
 import config
 
 
@@ -79,14 +79,16 @@ training_dataList = dataGenerator.getData(
     path_tile_image=config.path_tiled_image,
     path_tile_label=config.path_tiled_label)
 
-training_list_ids, training_imageMap, training_labelMap = training_dataList.getList()
+training_list_ids, training_imageMap, \
+    training_labelMap = training_dataList.getList()
 
 # Validation Data Set
 validation_dataList = dataGenerator.getData(
     path_tile_image=config.path_vali_tiled_image,
     path_tile_label=config.path_vali_tiled_label)
 
-validation_list_ids, validation_imageMap, validation_labelMap = validation_dataList.getList()
+validation_list_ids, validation_imageMap, \
+    validation_labelMap = validation_dataList.getList()
 
 # Training DataGenerator
 training_generator = dataGenerator.DataGenerator(
@@ -118,17 +120,27 @@ logging.info('num_image_channels: {}'.format(config.num_image_channels))
 logging.info('num_epoch: {}'.format(config.epoch))
 
 
-unet_model = model.unet(config.image_size)
-
 # loading model from model file or  weights file
 logging.info('Loading trained model')
+unet_model, base_net = model_builder.builder(
+    config.num_label_channels,
+    (config.image_size, config.image_size),
+    model=config.modelArchitecture,
+    base_model=config.modelBackone)
 
 if args.weight is True:
-    unet_model = model.unet(config.image_size)
+    # unet_model = defaultModel.unet(config.image_size)
+    unet_model, base_net = model_builder.builder(
+        config.num_label_channels,
+        (config.image_size, config.image_size),
+        model=config.modelArchitecture,
+        base_model=config.modelBackone)
+
     try:
         unet_model.load_weights(args.pretrained)
     except Exception as e:
-        msg = 'Unable to load model weights: {}'.format(args.pretrained)
+        msg = 'Unable to load model weights: {}. Model Architecture: {}, Backbones: {}'.format(
+            args.pretrained, config.modelArchitecture, config.modelBackone)
         logging.error(msg)
         raise('{}. Error : {}'.format(msg, e))
 
@@ -142,7 +154,7 @@ elif args.weight is False:
         raise('{}. Error : {}'.format(msg, e))
 
 # Compiling model
-unet_model.compile(optimizer=Adam(lr=1e-4),
+unet_model.compile(optimizer=tf.keras.optimizers.Adam(lr=config.learningRate),
                    loss=loss.weighted_binary_crossentropy,  # 'binary_crossentropy',  #
                    metrics=[metric.dice_coef, metric.jaccard_coef])
 
@@ -156,14 +168,15 @@ csv_logger = keras.callbacks.CSVLogger(
 
 # Creating model callbacks
 path_save_callback = os.path.join(
-    config.path_weight, 'weights.{epoch:02d}-{val_loss:.2f}.hdf5')
-saving_model = keras.callbacks.ModelCheckpoint(path_save_callback,
-                                               monitor='val_loss',
-                                               verbose=0,
-                                               save_best_only=False,
-                                               save_weights_only=True,
-                                               mode='auto',
-                                               period=5)
+    config.path_weight, 'weights.{epoch:02d}.hdf5')
+
+saving_model = tf.keras.callbacks.ModelCheckpoint(path_save_callback,
+                                                  verbose=0,
+                                                  monitor='val_loss',
+                                                  save_best_only=False,
+                                                  save_weights_only=True,
+                                                  mode='auto',
+                                                  save_freq='epoch')
 
 # fit the unet with the actual image, train_image
 # and the output, train_label
