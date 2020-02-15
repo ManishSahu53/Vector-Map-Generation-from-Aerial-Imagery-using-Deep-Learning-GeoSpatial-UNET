@@ -50,7 +50,7 @@ class SegNet(Network):
         x = layers.Conv2D(filters, kernel_size,
                           strides=strides,
                           padding='same',
-                          kernel_initializer='he_normal')(x)
+                          kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
         x = layers.ReLU()(x)
         return x
@@ -94,7 +94,7 @@ class SegNet(Network):
         x = self._conv_bn_relu(x, 64, 3, strides=1)
         x = layers.Conv2D(num_classes, 1,
                           strides=1,
-                          kernel_initializer='he_normal',
+                          kernel_initializer='glorot_normal',
                           activation='softmax')(x)
         # x = layers.BatchNormalization()(x)
 

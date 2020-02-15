@@ -73,6 +73,7 @@ class DataGenerator(keras.utils.Sequence):
         """
         gt, gp, size, arr = io.read_tif(path_image)
         arr[arr == 255] = 1
+        arr = np.array(arr)
         # print('Maximum Value Label: {}'.format(np.max(arr)))
         return cv2.resize(arr, (self.image_size, self.image_size))
 

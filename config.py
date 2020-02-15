@@ -8,7 +8,7 @@ path_input = 'data/Buildings/train'
 # Inside this folder, should contain an image and label folder \
 # Example - train/image, train/label
 
-path_output = 'model/DeepLabV3Plus_ResNet50'
+path_output = 'model/DenseASPP'
 path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
 
@@ -18,7 +18,7 @@ maxResolution = 1  # meters
 step = 0.1  # meters
 
 # Model Parameters
-modelArchitecture = 'DeepLabV3Plus'
+modelArchitecture = 'DenseASPP'
 modelBackone = 'ResNet50'
 num_image_channels = 3
 num_label_channels = 1
@@ -27,8 +27,8 @@ image_size = 256
 grid_size = 256
 epoch = 30
 overlap = 10
-batch = 16
-learningRate = 2*10e-5
+batch = 8
+learningRate = 1e-4
 image_ext = ['.tif', '.tiff', '.vrt']
 
 # Post Processing

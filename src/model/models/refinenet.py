@@ -50,14 +50,14 @@ class RefineNet(Network):
         h = [None, None, None, None]
 
         for i in range(4):
-            h[i] = layers.Conv2D(256, 1, strides=1, kernel_initializer='he_normal')(xs[i])
+            h[i] = layers.Conv2D(256, 1, strides=1, kernel_initializer='glorot_normal')(xs[i])
 
         g[0] = self._refine_block(high_inputs=None, low_inputs=h[0])
         g[1] = self._refine_block(g[0], h[1])
         g[2] = self._refine_block(g[1], h[2])
         g[3] = self._refine_block(g[2], h[3])
 
-        x = layers.Conv2D(num_classes, 1, strides=1, kernel_initializer='he_normal')(g[3])
+        x = layers.Conv2D(num_classes, 1, strides=1, kernel_initializer='glorot_normal')(g[3])
         x = layers.UpSampling2D(size=(4, 4), interpolation='bilinear')(x)
         x = tf.keras.activations.softmax(x)
 
@@ -67,20 +67,20 @@ class RefineNet(Network):
 
     def _residual_conv_unit(self, inputs, features=256, kernel_size=3):
         x = layers.ReLU()(inputs)
-        x = layers.Conv2D(features, kernel_size, padding='same', kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(features, kernel_size, padding='same', kernel_initializer='glorot_normal')(x)
         x = layers.ReLU()(x)
-        x = layers.Conv2D(features, kernel_size, padding='same', kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(features, kernel_size, padding='same', kernel_initializer='glorot_normal')(x)
         x = layers.Add()([inputs, x])
         return x
 
     def _chained_residual_pooling(self, inputs, features=256):
         x_relu = layers.ReLU()(inputs)
         x = layers.MaxPool2D((5, 5), strides=1, padding='same')(x_relu)
-        x = layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(x)
         x_sum_1 = layers.Add()([x, x_relu])
 
         x = layers.MaxPool2D((5, 5), strides=1, padding='same')(x_relu)
-        x = layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(x)
         x_sum_2 = layers.Add()([x, x_sum_1])
 
         return x_sum_2
@@ -91,8 +91,8 @@ class RefineNet(Network):
             rcu_low_1 = low_inputs[0]
             rcu_low_2 = low_inputs[1]
 
-            rcu_low_1 = layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(rcu_low_1)
-            rcu_low_2 = layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(rcu_low_2)
+            rcu_low_1 = layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(rcu_low_1)
+            rcu_low_2 = layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(rcu_low_2)
 
             return layers.Add()([rcu_low_1, rcu_low_2])
 
@@ -100,8 +100,8 @@ class RefineNet(Network):
             rcu_low_1 = low_inputs[0]
             rcu_low_2 = low_inputs[1]
 
-            rcu_low_1 = layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(rcu_low_1)
-            rcu_low_2 = layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(rcu_low_2)
+            rcu_low_1 = layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(rcu_low_1)
+            rcu_low_2 = layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(rcu_low_2)
 
             rcu_low = layers.Add()([rcu_low_1, rcu_low_2])
 
@@ -109,9 +109,9 @@ class RefineNet(Network):
             rcu_high_2 = high_inputs[1]
 
             rcu_high_1 = layers.UpSampling2D(size=(2, 2), interpolation='bilinear')(
-                layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(rcu_high_1))
+                layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(rcu_high_1))
             rcu_high_2 = layers.UpSampling2D(size=(2, 2), interpolation='bilinear')(
-                layers.Conv2D(features, 3, padding='same', kernel_initializer='he_normal')(rcu_high_2))
+                layers.Conv2D(features, 3, padding='same', kernel_initializer='glorot_normal')(rcu_high_2))
 
             rcu_high = layers.Add()([rcu_high_1, rcu_high_2])
 

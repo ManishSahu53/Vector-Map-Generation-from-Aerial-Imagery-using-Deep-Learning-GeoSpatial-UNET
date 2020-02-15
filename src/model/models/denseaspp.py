@@ -55,7 +55,7 @@ class DenseASPP(Network):
         x = layers.Conv2D(filters, kernel_size,
                           padding='same',
                           dilation_rate=rate,
-                          kernel_initializer='he_normal')(x)
+                          kernel_initializer='glorot_normal')(x)
         return x
 
     def _denseaspp(self, inputs):
@@ -93,9 +93,9 @@ class DenseASPP(Network):
         x = custom_layers.Concatenate(
             out_size=aspp_size)([c5, d3, d4, d5, d6, d7])
         x = layers.Conv2D(num_classes, 1, strides=1,
-                          kernel_initializer='he_normal')(x)
+                          kernel_initializer='glorot_normal')(x)
         x = layers.UpSampling2D(size=(8, 8), interpolation='bilinear')(x)
-        x = tf.keras.activations.softmax(x)
+        x = tf.keras.activations.sigmoid(x)
 
         outputs = x
         return models.Model(inputs, outputs, name=self.version)

@@ -55,7 +55,7 @@ class PAN(Network):
         return self._pan(inputs)
 
     def _conv_bn_relu(self, x, filters, kernel_size, strides=1):
-        x = layers.Conv2D(filters, kernel_size, strides, padding='same', kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(filters, kernel_size, strides, padding='same', kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
         x = layers.ReLU()(x)
         return x
@@ -65,7 +65,7 @@ class PAN(Network):
 
         # global average pooling
         glb = custom_layers.GlobalAveragePooling2D(keep_dims=True)(x)
-        glb = layers.Conv2D(out_filters, 1, strides=1, kernel_initializer='he_normal')(glb)
+        glb = layers.Conv2D(out_filters, 1, strides=1, kernel_initializer='glorot_normal')(glb)
 
         # down
         down1 = layers.AveragePooling2D(pool_size=(2, 2))(x)
@@ -90,7 +90,7 @@ class PAN(Network):
 
         up = layers.UpSampling2D(size=(2, 2))(up1)
 
-        x = layers.Conv2D(out_filters, 1, strides=1, kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(out_filters, 1, strides=1, kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
 
         # multiply
@@ -103,7 +103,7 @@ class PAN(Network):
 
     def _gau(self, x, y, out_filters, up_size=(2, 2)):
         glb = custom_layers.GlobalAveragePooling2D(keep_dims=True)(y)
-        glb = layers.Conv2D(out_filters, 1, strides=1, activation='sigmoid', kernel_initializer='he_normal')(glb)
+        glb = layers.Conv2D(out_filters, 1, strides=1, activation='sigmoid', kernel_initializer='glorot_normal')(glb)
 
         x = self._conv_bn_relu(x, out_filters, 3, 1)
         x = layers.Multiply()([x, glb])

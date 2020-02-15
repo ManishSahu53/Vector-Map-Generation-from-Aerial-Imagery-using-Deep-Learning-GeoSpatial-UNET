@@ -79,9 +79,9 @@ class DeepLabV3Plus(Network):
         x = self._conv_bn_relu(x, 256, 3, 1)
         x = layers.Dropout(rate=0.1)(x)
 
-        x = layers.Conv2D(num_classes, 1, strides=1)(x)
+        x = layers.Conv2D(num_classes, 1, strides=1, activation='sigmoid')(x)
         x = layers.UpSampling2D(size=(4, 4), interpolation='bilinear')(x)
-        x = tf.keras.activations.softmax(x)
+        # x = tf.keras.activations.softmax(x)
         outputs = x
         return models.Model(inputs, outputs, name=self.version)
 

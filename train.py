@@ -182,7 +182,7 @@ saving_model = tf.keras.callbacks.ModelCheckpoint(path_save_callback,
 # and the output, train_label
 history = unet_model.fit_generator(generator=training_generator,
                                    epochs=config.epoch,
-                                   workers=3,
+                                   workers=6,
                                    validation_data=validation_generator,
                                    callbacks=[csv_logger, saving_model])
 

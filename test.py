@@ -21,6 +21,7 @@ from src import bf_grid
 from src import metric
 from src import dataGenerator
 from src import defaultModel
+from src.model.builders import model_builder
 
 import config
 
@@ -123,17 +124,29 @@ logging.info('bbox path is %s' % (path_bbox))
 
 # loading model from model file or  weights file
 logging.info('Loading trained model')
+unet_model, base_net = model_builder.builder(
+    config.num_label_channels,
+    (config.image_size, config.image_size),
+    model=config.modelArchitecture,
+    base_model=config.modelBackone)
 
 if args.weight is True:
-    unet_model = defaultModel.unet(config.image_size)
+    # unet_model = defaultModel.unet(config.image_size)
+    unet_model, base_net = model_builder.builder(
+        config.num_label_channels,
+        (config.image_size, config.image_size),
+        model=config.modelArchitecture,
+        base_model=config.modelBackone)
+
     try:
         unet_model.load_weights(args.pretrained)
     except Exception as e:
-        msg = 'Unable to load model weights: {}'.format(args.pretrained)
+        msg = 'Unable to load model weights: {}. Model Architecture: {}, Backbones: {}'.format(
+            args.pretrained, config.modelArchitecture, config.modelBackone)
         logging.error(msg)
         raise('{}. Error : {}'.format(msg, e))
 
-else:
+elif args.weight is False:
     try:
         unet_model = load_model(args.pretrained, custom_objects={
             'dice_coef': metric.dice_coef, 'jaccard_coef': metric.jaccard_coef})

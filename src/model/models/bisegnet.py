@@ -38,7 +38,7 @@ class BiSegNet(Network):
 
     def _conv_block(self, x, filters, kernel_size=3, strides=1):
         x = layers.Conv2D(filters, kernel_size, strides,
-                          padding='same', kernel_initializer='he_normal')(x)
+                          padding='same', kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
         x = layers.ReLU()(x)
         return x
@@ -49,7 +49,7 @@ class BiSegNet(Network):
 
         glb = custom_layers.GlobalAveragePooling2D(keep_dims=True)(x)
         glb = layers.Conv2D(
-            c, 1, strides=1, kernel_initializer='he_normal')(glb)
+            c, 1, strides=1, kernel_initializer='glorot_normal')(glb)
         glb = layers.BatchNormalization()(glb)
         glb = layers.Activation(activation='sigmoid')(glb)
 
@@ -66,9 +66,9 @@ class BiSegNet(Network):
 
         glb = custom_layers.GlobalAveragePooling2D(keep_dims=True)(inputs)
         glb = layers.Conv2D(
-            filters, 1, strides=1, activation='relu', kernel_initializer='he_normal')(glb)
+            filters, 1, strides=1, activation='relu', kernel_initializer='glorot_normal')(glb)
         glb = layers.Conv2D(
-            filters, 1, strides=1, activation='sigmoid', kernel_initializer='he_normal')(glb)
+            filters, 1, strides=1, activation='sigmoid', kernel_initializer='glorot_normal')(glb)
 
         x = layers.Multiply()([inputs, glb])
 
@@ -111,7 +111,7 @@ class BiSegNet(Network):
         x = self._feature_fusion_module(sx, cx, num_classes)
 
         x = layers.UpSampling2D(size=(8, 8), interpolation='bilinear')(x)
-        x = layers.Conv2D(num_classes, 1, 1, kernel_initializer='he_normal',
+        x = layers.Conv2D(num_classes, 1, 1, kernel_initializer='glorot_normal',
                           activation='softmax')(x)
         
         outputs = x

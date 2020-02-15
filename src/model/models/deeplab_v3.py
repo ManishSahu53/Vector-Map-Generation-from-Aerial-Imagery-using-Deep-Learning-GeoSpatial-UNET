@@ -69,9 +69,9 @@ class DeepLabV3(Network):
                                      dilation=dilation[1] * multi_grid[i])
         x = self._aspp(x, 256)
         x = layers.Conv2D(num_classes, 1, strides=1,
-                          kernel_initializer='he_normal')(x)
+                          kernel_initializer='glorot_normal')(x)
         x = layers.UpSampling2D(size=(16, 16), interpolation='bilinear')(x)
-        x = tf.keras.activations.softmax(x)
+        # x = tf.keras.activations.softmax(x)
 
         outputs = x
         return models.Model(inputs, outputs, name=self.version)
@@ -79,7 +79,7 @@ class DeepLabV3(Network):
     def _aspp(self, x, out_filters):
         xs = list()
         x1 = layers.Conv2D(out_filters, 1, strides=1,
-                           kernel_initializer='he_normal')(x)
+                           kernel_initializer='glorot_normal')(x)
         xs.append(x1)
 
         for i in range(3):
@@ -90,14 +90,14 @@ class DeepLabV3(Network):
             xs.append(xi)
         img_pool = custom_layers.GlobalAveragePooling2D(keep_dims=True)(x)
         img_pool = layers.Conv2D(
-            out_filters, 1, 1, kernel_initializer='he_normal')(img_pool)
+            out_filters, 1, 1, kernel_initializer='glorot_normal')(img_pool)
         img_pool = layers.UpSampling2D(
             size=self.aspp_size, interpolation='bilinear')(img_pool)
         xs.append(img_pool)
 
         x = custom_layers.Concatenate(out_size=self.aspp_size)(xs)
         x = layers.Conv2D(out_filters, 1, strides=1,
-                          kernel_initializer='he_normal')(x)
+                          kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
 
         return x
@@ -125,7 +125,7 @@ class DeepLabV3(Network):
         bn_name_base = 'bn' + str(stage) + block + '_branch'
 
         x = layers.Conv2D(filters1, (1, 1),
-                          kernel_initializer='he_normal',
+                          kernel_initializer='glorot_normal',
                           name=conv_name_base + '2a')(input_tensor)
         x = layers.BatchNormalization(
             axis=bn_axis, name=bn_name_base + '2a')(x)
@@ -133,7 +133,7 @@ class DeepLabV3(Network):
 
         x = layers.Conv2D(filters2, kernel_size,
                           padding='same',
-                          kernel_initializer='he_normal',
+                          kernel_initializer='glorot_normal',
                           name=conv_name_base + '2b',
                           dilation_rate=dilation)(x)
         x = layers.BatchNormalization(
@@ -141,7 +141,7 @@ class DeepLabV3(Network):
         x = layers.Activation('relu')(x)
 
         x = layers.Conv2D(filters3, (1, 1),
-                          kernel_initializer='he_normal',
+                          kernel_initializer='glorot_normal',
                           name=conv_name_base + '2c')(x)
         x = layers.BatchNormalization(
             axis=bn_axis, name=bn_name_base + '2c')(x)
@@ -189,7 +189,7 @@ class DeepLabV3(Network):
         x = layers.Conv2D(filters1, (1, 1),
                           strides=strides,
                           name=conv_name_base + '2a',
-                          kernel_initializer='he_normal')(input_tensor)
+                          kernel_initializer='glorot_normal')(input_tensor)
         x = layers.BatchNormalization(
             axis=bn_axis, name=bn_name_base + '2a')(x)
         x = layers.Activation('relu')(x)
@@ -197,7 +197,7 @@ class DeepLabV3(Network):
         x = layers.Conv2D(filters2, kernel_size,
                           padding='same',
                           name=conv_name_base + '2b',
-                          kernel_initializer='he_normal',
+                          kernel_initializer='glorot_normal',
                           dilation_rate=dilation)(x)
         x = layers.BatchNormalization(
             axis=bn_axis, name=bn_name_base + '2b')(x)
@@ -205,14 +205,14 @@ class DeepLabV3(Network):
 
         x = layers.Conv2D(filters3, (1, 1),
                           name=conv_name_base + '2c',
-                          kernel_initializer='he_normal')(x)
+                          kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization(
             axis=bn_axis, name=bn_name_base + '2c')(x)
 
         shortcut = layers.Conv2D(filters3, (1, 1),
                                  strides=strides,
                                  name=conv_name_base + '1',
-                                 kernel_initializer='he_normal')(input_tensor)
+                                 kernel_initializer='glorot_normal')(input_tensor)
         shortcut = layers.BatchNormalization(
             axis=bn_axis, name=bn_name_base + '1')(shortcut)
 

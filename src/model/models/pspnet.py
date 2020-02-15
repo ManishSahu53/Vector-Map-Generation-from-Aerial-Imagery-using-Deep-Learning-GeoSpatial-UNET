@@ -64,36 +64,36 @@ class PSPNet(Network):
 
         # pyramid pooling
         x1 = custom_layers.GlobalAveragePooling2D(keep_dims=True)(x)
-        x1 = layers.Conv2D(512, 1, strides=1, kernel_initializer='he_normal')(x1)
+        x1 = layers.Conv2D(512, 1, strides=1, kernel_initializer='glorot_normal')(x1)
         x1 = layers.BatchNormalization()(x1)
         x1 = layers.ReLU()(x1)
         x1 = layers.UpSampling2D(size=pool_size[0])(x1)
 
         x2 = layers.AveragePooling2D(pool_size=pool_size[1])(x)
-        x2 = layers.Conv2D(512, 1, strides=1, kernel_initializer='he_normal')(x2)
+        x2 = layers.Conv2D(512, 1, strides=1, kernel_initializer='glorot_normal')(x2)
         x2 = layers.BatchNormalization()(x2)
         x2 = layers.ReLU()(x2)
         x2 = layers.UpSampling2D(size=pool_size[1])(x2)
 
         x3 = layers.AveragePooling2D(pool_size=pool_size[2])(x)
-        x3 = layers.Conv2D(512, 1, strides=1, kernel_initializer='he_normal')(x3)
+        x3 = layers.Conv2D(512, 1, strides=1, kernel_initializer='glorot_normal')(x3)
         x3 = layers.BatchNormalization()(x3)
         x3 = layers.ReLU()(x3)
         x3 = layers.UpSampling2D(size=pool_size[2])(x3)
 
         x6 = layers.AveragePooling2D(pool_size=pool_size[3])(x)
-        x6 = layers.Conv2D(512, 1, strides=1, kernel_initializer='he_normal')(x6)
+        x6 = layers.Conv2D(512, 1, strides=1, kernel_initializer='glorot_normal')(x6)
         x6 = layers.BatchNormalization()(x6)
         x6 = layers.ReLU()(x6)
         x6 = layers.UpSampling2D(size=pool_size[3])(x6)
 
         x = layers.Concatenate()([x, x1, x2, x3, x6])
 
-        x = layers.Conv2D(512, 3, strides=1, padding='same', kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(512, 3, strides=1, padding='same', kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
         x = layers.ReLU()(x)
 
-        x = layers.Conv2D(num_classes, 1, strides=1, kernel_initializer='he_normal')(x)
+        x = layers.Conv2D(num_classes, 1, strides=1, kernel_initializer='glorot_normal')(x)
         x = layers.BatchNormalization()(x)
 
         x = layers.UpSampling2D(size=(8, 8), interpolation='bilinear')(x)
