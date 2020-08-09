@@ -157,17 +157,14 @@ for root, dirs, files in os.walk(path_data):
             
             if args.upscalling is True:
                 logging.info('Scaling TIF to custom resolution')
-                
+
                 # Converting to 10 cm data
                 res = config.default_resolution
                 gdalOption = gdal.WarpOptions(
                         format='VRT', xRes=res, yRes=res)
 
                 # Creating output file name
-                path_image_output = os.path.join(
-                    config.path_image_vrt,
-                    util.getNamenoExt(file),
-                    util.getNamenoExt(file) + '_' + str(res)+'.vrt')
+                path_image_output = os.path.join(root, util.getNamenoExt(file) + '_' + str(res)+'.vrt')
 
                 # Creating VRT of input image
                 gdal.Warp(path_image_output, os.path.abspath(os.path.join(
