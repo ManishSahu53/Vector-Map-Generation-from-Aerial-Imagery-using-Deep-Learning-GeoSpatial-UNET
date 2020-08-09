@@ -10,6 +10,7 @@ path_validation = 'data/Buildings/test'
 path_vali_output = os.path.join(path_output, 'validation')
 
 # generateDatset Parameters
+default_resolution = 0.1
 minResolution = 0.1  # meters
 maxResolution = 1  # meters
 step = 0.1  # meters

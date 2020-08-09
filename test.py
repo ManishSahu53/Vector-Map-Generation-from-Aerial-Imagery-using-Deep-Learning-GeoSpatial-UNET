@@ -24,9 +24,9 @@ from src import model
 
 import config
 
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-_config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
+# physical_devices = tf.config.experimental.list_physical_devices('GPU')
+# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+# _config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
 util.check_dir(config.path_logs)
@@ -44,6 +44,11 @@ parser.add_argument('-sg', '--skipGridding',
 parser.add_argument('-d', '--data',
                     help='Input Data folder where TIF files are stored',
                     type=str,
+                    required=True)
+
+parser.add_argument('-ups', '--upscalling',
+                    help='UpScale TIF image to predefined 10cm image',
+                    type=bool,
                     required=True)
 
 parser.add_argument('-pt', '--pretrained',
@@ -149,6 +154,24 @@ for root, dirs, files in os.walk(path_data):
         if file.endswith(tuple(config.image_ext)):
 
             temp_path_data = os.path.join(root, file)
+            
+            if args.upscalling is True:
+                logging.info('Scaling TIF to custom resolution')
+
+                # Converting to 10 cm data
+                res = config.default_resolution
+                gdalOption = gdal.WarpOptions(
+                        format='VRT', xRes=res, yRes=res)
+
+                # Creating output file name
+                path_image_output = os.path.join(root, util.getNamenoExt(file) + '_' + str(res)+'.vrt')
+
+                # Creating VRT of input image
+                gdal.Warp(path_image_output, os.path.abspath(os.path.join(
+                    root, file)), options=gdalOption)
+
+                # Replacing default image with 10 cm upscaled image
+                temp_path_data = path_image_output
 
             # Creating a new folder for tiled and prediction of the file
             _name = os.path.splitext(os.path.basename(file))[0]
@@ -180,9 +203,11 @@ for root, dirs, files in os.walk(path_data):
                 temp_path_data, len(testing_list_ids)))
 
             # get name, size, geo referencing data map
+            logging.info('Extracting GeoData from Gridded data')
             testing_geoMap = io.getGeodata(testing_imageMap)
 
             # Testing DataGenerator
+            logging.info('Testing Generator')
             training_generator = dataGenerator.DataGenerator(
                 list_IDs=testing_list_ids,
                 imageMap=testing_imageMap,
