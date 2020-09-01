@@ -57,7 +57,7 @@ Raster obtained from the watershed segmentation is vectorized using gdal/ogr lib
 4. ![Slums](https://github.com/ManishSahu53/geospatial_unet/blob/master/images/Slums.png?thumbnail))
 
 ### Pretrained Weights
-Here is pretrained weight for buildings (https://drive.google.com/file/d/1scRiEocm7kyngmy3-OWW796gYjvBkcf_/view)
+Here is pretrained weight for buildings (https://drive.google.com/file/d/1lHf098rEvlvFwkDiGI3KO6fsf0cvJlKT/view?usp=sharing)
 
 ## Tutorial
 ### How to train on custom dataset
